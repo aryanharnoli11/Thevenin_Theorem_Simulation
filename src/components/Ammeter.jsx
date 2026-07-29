@@ -1,0 +1,97 @@
+import ammeterImg from '../assets/Ammeter.png'
+import needleImg from '../assets/needle.png'
+import {
+  getTerminalConnectedClass,
+  getTerminalHighlightClass,
+  getTerminalNumberHighlightClass,
+} from '../utils/terminalHighlight.js'
+import { getMeterNeedleAngle } from '../utils/meterScale.js'
+
+// The 0-5 dial is used on its 0-0.5 A range for this experiment.
+const METER_MAX_CURRENT = 0.5
+
+const ammeterImages = {
+  A1: ammeterImg,
+}
+
+const terminalNumbers = {
+  A1: { positive: 3, negative: 4 },
+  A2: { positive: 5, negative: 6 },
+  A3: { positive: 7, negative: 8 },
+}
+
+
+const Ammeter = ({
+  connectedTerminalIds = [],
+  highlightedTerminalIds = [],
+  label,
+  value = 0,
+  powerOn,
+}) => {
+  const terminals = terminalNumbers[label]
+  const numericValue = Number(value)
+  const current = Number.isFinite(numericValue) ? numericValue : 0
+  const displayCurrent = powerOn && current > 0 ? current : 0
+  const angle = getMeterNeedleAngle({
+    maxValue: METER_MAX_CURRENT,
+    value: displayCurrent,
+  })
+
+  return (
+    <article
+      className={`ammeter ammeter--${label}`}
+      id={`ammeter-${label.toLowerCase()}`}
+      aria-label={`${label} ammeter reading ${displayCurrent.toFixed(4)} amperes`}
+      title={`${displayCurrent.toFixed(4)} A`}
+    >
+      <img
+        src={ammeterImages[label]}
+        alt={`${label} ammeter`}
+        className="ammeter__image"
+      />
+
+      <span
+        id={`${terminals.positive}-endpoint`}
+className={`connection-terminal connection-terminal--meter connection-terminal--meter-plus connection-terminal--endpoint-${terminals.positive}${getTerminalConnectedClass(connectedTerminalIds, `${terminals.positive}-endpoint`)}${getTerminalHighlightClass(highlightedTerminalIds, `${terminals.positive}-endpoint`)}`}
+        data-polarity="plus"
+        aria-label={`${label} positive terminal ${terminals.positive}`}
+        title={`${label} positive terminal ${terminals.positive}`}
+      />
+      <span
+className={`terminal-number-label terminal-number-label--meter-plus terminal-number-label--endpoint-${terminals.positive}${getTerminalNumberHighlightClass(highlightedTerminalIds, `${terminals.positive}-endpoint`)}`}
+        data-terminal-id={`${terminals.positive}-endpoint`}
+        title={`${label} positive terminal ${terminals.positive}`}
+      >
+        {terminals.positive}
+      </span>
+
+      <span
+        id={`${terminals.negative}-endpoint`}
+className={`connection-terminal connection-terminal--meter connection-terminal--meter-minus connection-terminal--endpoint-${terminals.negative}${getTerminalConnectedClass(connectedTerminalIds, `${terminals.negative}-endpoint`)}${getTerminalHighlightClass(highlightedTerminalIds, `${terminals.negative}-endpoint`)}`}
+        data-polarity="minus"
+        aria-label={`${label} negative terminal ${terminals.negative}`}
+        title={`${label} negative terminal ${terminals.negative}`}
+      />
+      <span
+className={`terminal-number-label terminal-number-label--meter-minus terminal-number-label--endpoint-${terminals.negative}${getTerminalNumberHighlightClass(highlightedTerminalIds, `${terminals.negative}-endpoint`)}`}
+        data-terminal-id={`${terminals.negative}-endpoint`}
+        title={`${label} negative terminal ${terminals.negative}`}
+      >
+        {terminals.negative}
+      </span>
+
+      <div
+        className="ammeter__needle"
+        style={{ transform: `rotate(${angle}deg)` }}
+      >
+        <img
+          src={needleImg}
+          alt="Needle"
+          className="ammeter__needle-image"
+        />
+      </div>
+    </article>
+  )
+}
+
+export default Ammeter
