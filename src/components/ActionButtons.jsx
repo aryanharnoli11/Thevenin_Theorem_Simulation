@@ -276,7 +276,7 @@ const ActionButtons = ({
 
   <li {...getInstructionProps('step4')}>
     <strong>STEP 4:</strong>{' '}
-    <ElectricalText text="Enter the manually calculated IL value and click VERIFY." />
+    <ElectricalText text="Enter RTH and VTH to calculate IL automatically, then click VERIFY." />
   </li>
 
   <li {...getInstructionProps('step5')}>

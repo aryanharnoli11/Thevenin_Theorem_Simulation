@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useLabAlerts } from '../alerts/useLabAlerts.js';
 import { EXPERIMENT_ALERTS } from '../alerts/experimentStepAlerts.js'
 import ElectricalText from './ElectricalText.jsx';
@@ -5,7 +6,6 @@ const CalculationPanel = ({
   calculationDone,
   calculatedValues,
   verificationResult,
-  userCalculatedIL,
   setUserCalculatedIL,
   setVerificationResult,
   playStepById,
@@ -16,38 +16,78 @@ const CalculationPanel = ({
   const r3 = calculatedValues?.r3 ?? '';
   const voltageSource = calculatedValues?.voltageSource ?? '';
 
-  // Extracting Thevenin parameters
-  const vth = calculatedValues?.vth ?? '';
-  const rth = calculatedValues?.rth ?? '';
+  // Extracting recorded load parameters
   const rl = calculatedValues?.rl ?? '';
   const observedIL = calculatedValues?.observedIL ?? '';
 
   const { showStepAlert } = useLabAlerts();
+  const [theveninInputs, setTheveninInputs] = useState({
+    rth: '',
+    vth: '',
+  });
+
+  const hasTheveninInputs =
+    theveninInputs.rth.trim() !== '' &&
+    theveninInputs.vth.trim() !== '';
+  const enteredRth = Number(theveninInputs.rth);
+  const enteredVth = Number(theveninInputs.vth);
+  const loadResistance = Number(rl);
+  const loadCurrentDenominator = enteredRth + loadResistance;
+  const inputsAreValid =
+    hasTheveninInputs &&
+    Number.isFinite(enteredRth) &&
+    enteredRth >= 0 &&
+    Number.isFinite(enteredVth) &&
+    Number.isFinite(loadResistance) &&
+    loadResistance >= 0 &&
+    loadCurrentDenominator > 0;
+  const calculatedLoadCurrent = inputsAreValid
+    ? enteredVth / loadCurrentDenominator
+    : null;
+  const calculatedLoadCurrentDisplay =
+    calculatedLoadCurrent === null
+      ? ''
+      : calculatedLoadCurrent.toFixed(6);
+
+  useEffect(() => {
+    setUserCalculatedIL(calculatedLoadCurrentDisplay);
+  }, [calculatedLoadCurrentDisplay, setUserCalculatedIL]);
+
+  const handleTheveninInputChange = (parameter, value) => {
+    setTheveninInputs((current) => ({
+      ...current,
+      [parameter]: value,
+    }));
+    setVerificationResult('');
+  };
 
   const handleVerify = () => {
     if (!calculationDone) return;
 
-    if (userCalculatedIL.trim() === '') {
+    if (!hasTheveninInputs) {
       showStepAlert({
         title: 'Input Required',
-        description: 'Please enter the calculated IL value.',
+        description:
+          'Please enter the Thevenin equivalent resistance and voltage.',
         type: 'warning',
       });
       return;
     }
 
-    const entered = Number(userCalculatedIL);
-    if (Number.isNaN(entered)) {
+    if (!inputsAreValid) {
       showStepAlert({
         title: 'Invalid Input',
-        description: 'Please enter a valid numerical value.',
+        description:
+          'Please enter valid values for the Thevenin equivalent resistance and voltage.',
         type: 'warning',
       });
       return;
     }
 
     const actual = Number(observedIL);
-    const isCorrect = Math.abs(entered - actual) < 0.001;
+    const isCorrect =
+      Number.isFinite(actual) &&
+      Math.abs(calculatedLoadCurrent - actual) < 0.001;
 
     if (isCorrect) {
       playStepById?.(34)
@@ -70,7 +110,7 @@ const CalculationPanel = ({
       </div>
 
       <div className="graph-panel__body">
-        
+
         {/* TOP ROW: Resistance & Source Values */}
         <div className="calc-top-row">
           
@@ -102,7 +142,13 @@ const CalculationPanel = ({
                 <span className="inline-unit">Ω</span>
               </div>
 
-              
+              <div className="inline-input-item">
+                <span className="inline-label">R<sub>L</sub>:</span>
+                <div className="inline-display">
+                  {calculationDone && rl !== '' ? Number(rl).toFixed(0) : ''}
+                </div>
+                <span className="inline-unit">Ω</span>
+              </div>
             </div>
           </div>
 
@@ -124,41 +170,50 @@ const CalculationPanel = ({
         </div>
 
         {/* Thevenin Calculation Parameters */}
+
+          {/* RTH */}
+        <div className="calc-field">
+          <div className="calc-label">Thevenin Equivalent Resistance:</div>
+          <div className="calc-manual-entry-control">
+            <div className="calc-input-group">
+              <div className="calc-prefix">R<sub>TH</sub></div>
+              <input
+                aria-label="Enter Thevenin equivalent resistance"
+                className="calc-display calc-user-input"
+                disabled={!calculationDone}
+                onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
+                placeholder="Enter value"
+                min="0"
+                step="0.01"
+                type="number"
+                value={theveninInputs.rth}
+              />
+              <div className="calc-suffix">Ω</div>
+            </div>
+          </div>
+        </div>
+
         {/* VTH */}
         <div className="calc-field">
           <div className="calc-label">Thevenin Equivalent Voltage:</div>
-          <div className="calc-input-group">
-            <div className="calc-prefix">V<sub>TH</sub></div>
-            <div className="calc-display">
-              {calculationDone ? Number(vth).toFixed(3) : ''}
+          <div className="calc-manual-entry-control">
+            <div className="calc-input-group">
+              <div className="calc-prefix">V<sub>TH</sub></div>
+              <input
+                aria-label="Enter Thevenin equivalent voltage"
+                className="calc-display calc-user-input"
+                disabled={!calculationDone}
+                onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
+                placeholder="Enter value"
+                step="0.01"
+                type="number"
+                value={theveninInputs.vth}
+              />
+              <div className="calc-suffix">V</div>
             </div>
-            <div className="calc-suffix">V</div>
           </div>
         </div>
-
-        {/* RTH */}
-        <div className="calc-field">
-          <div className="calc-label">Thevenin Equivalent Resistance:</div>
-          <div className="calc-input-group">
-            <div className="calc-prefix">R<sub>TH</sub></div>
-            <div className="calc-display">
-              {calculationDone ? Number(rth).toFixed(3) : ''}
-            </div>
-            <div className="calc-suffix">Ω</div>
-          </div>
-        </div>
-
-        {/* RL */}
-        <div className="calc-field">
-          <div className="calc-label">Load Resistance:</div>
-          <div className="calc-input-group">
-            <div className="calc-prefix">R<sub>L</sub></div>
-            <div className="calc-display">
-              {calculationDone ? Number(rl).toFixed(0) : ''}
-            </div>
-            <div className="calc-suffix">Ω</div>
-          </div>
-        </div>
+        <br />
 
         {/* Verification Result Cards */}
         <div className="results-section">
@@ -182,13 +237,14 @@ const CalculationPanel = ({
                 Calculated Load Current (<ElectricalText text="IL" />):
               </span>
               <input
+                aria-label="Calculated load current"
                 type="number"
                 step="0.000001"
-                value={userCalculatedIL}
-                onChange={(e) => setUserCalculatedIL(e.target.value)}
+                value={calculatedLoadCurrentDisplay}
+                readOnly
                 disabled={!calculationDone}
                 className="verification-input"
-                placeholder="Enter value..."
+                placeholder="Calculated automatically"
               />
               <div className="result-unit">A</div>
             </div>

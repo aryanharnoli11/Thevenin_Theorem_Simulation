@@ -162,7 +162,7 @@
     },
     {
       "id": 32,
-      "text": "The observed values are displayed in the Calculations Panel. Calculate the load current manually using the Thevenin Theorem, enter the calculated value and click Verify.",
+      "text": "The observed values are displayed in the Calculations Panel. Enter the Thevenin equivalent resistance and voltage to calculate the load current automatically, then click Verify.",
       "audio": "/audios/After clicking the calculate button.wav"
     },
     {
@@ -197,4 +197,3 @@
     }
   ]
 }
-

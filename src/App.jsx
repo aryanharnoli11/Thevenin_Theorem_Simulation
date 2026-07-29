@@ -452,7 +452,7 @@ const handleGenerateReport = async () => {
     rl,
     vth: calculatedValues?.vth ?? 0,
     rth: calculatedValues?.rth ?? 0,
-    observedIL: calculatedValues?.observedIL ?? 0,
+    calculatedIL: Number(userCalculatedIL),
     sessionStart,
   })
 
@@ -645,12 +645,12 @@ setCalculatedValues({
   r1,
   r2,
   r3,
-  rl,
+  rl: observations[0]?.rl ?? rl,
 
   voltageSource: voltage,
 
-  vth: measuredVth,
-  rth: measuredRth,
+  vth: observations[0]?.vth ?? measuredVth,
+  rth: observations[0]?.rth ?? measuredRth,
   observedIL: measuredIl,
 })
 
@@ -805,6 +805,7 @@ console.log("HIGHLIGHT IDS =", highlightedTerminalIds)
 </main>
 <div className="post-simulation-content" ref={postSimulationContentRef}>
   <CalculationPanel
+    key={calculationDone ? 'calculation-ready' : 'calculation-reset'}
     calculationDone={calculationDone}
     calculatedValues={calculatedValues}
     verificationResult={verificationResult}

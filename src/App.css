@@ -2139,8 +2139,8 @@ background:
   display: grid;
   align-items: center;
   margin-top: 10px;
-  grid-template-columns: 310px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 10px;
 }
 
 #calculation-panel .calc-label {
@@ -2152,25 +2152,32 @@ background:
 #calculation-panel .calc-input-group {
   display: flex;
   width: 100%;
-  max-width: 400px;
+  max-width: 280px;
   min-width: 0;
+}
+
+#calculation-panel .calc-manual-entry-control {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
 }
 
 #calculation-panel .calc-prefix,
 #calculation-panel .calc-suffix {
   display: flex;
-  height: 44px;
+  height: 38px;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
   border-color: rgba(112, 77, 44, 0.28);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1;
 }
 
 #calculation-panel .calc-prefix {
-  min-width: 76px;
+  min-width: 68px;
 }
 
 #calculation-panel .calc-prefix sub {
@@ -2183,14 +2190,29 @@ background:
 }
 
 #calculation-panel .calc-suffix {
-  min-width: 54px;
+  min-width: 48px;
 }
 
 #calculation-panel .calc-display {
   min-width: 0;
-  height: 44px;
+  height: 38px;
   justify-content: flex-end;
   background: #fffdf8;
+}
+
+#calculation-panel .calc-user-input {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: left;
+}
+
+#calculation-panel .calc-user-input::placeholder {
+  color: #9b8a7d;
+  font-weight: 500;
+  text-align: left;
 }
 
 #calculation-panel .results-section {

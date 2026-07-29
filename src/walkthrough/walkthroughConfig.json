@@ -206,7 +206,7 @@
     "en": "Calculation Panel"
   },
   "description": {
-    "en": "This is the Calculation Panel where the Thevenin Theorem will be verified. Enter the calculated load current and compare it with the measured load current to verify the theorem."
+    "en": "This is the Calculation Panel where the Thevenin Theorem will be verified. Enter the Thevenin equivalent resistance and voltage to calculate the load current automatically, then compare it with the measured load current."
   },
    "audio": "/walkthrough-audios/Calculation Panel.wav",
   "placement": "top"

@@ -268,7 +268,7 @@ readingAddedCase2: {
  calculationReady: {
   audio: ALERT_AUDIO.calculate,
   description:
-         'The observed values are displayed in the Calculations Panel. Calculate the load current manually using the rules of the Thevenin Theorem, enter the calculated value in the input field and click the Verify button to verify the theorem.',
+         'The observed values are displayed in the Calculations Panel. Enter the Thevenin equivalent resistance and voltage to calculate the load current automatically, then click the Verify button to compare it with the observed current.',
 
   icon: '🧮',
   stepNumber: 7,

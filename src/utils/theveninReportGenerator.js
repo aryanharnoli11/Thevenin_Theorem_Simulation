@@ -13,7 +13,7 @@ export const generateTheveninReport = ({
   rl,
   vth,
   rth,
-  observedIL,
+  calculatedIL,
   sessionStart,
 }) => {
   const iitLogoSrc =
@@ -865,7 +865,7 @@ tr:nth-child(even) {
             <h3>Theoretical Verification</h3>
                          <div class="calc-row">
                 <span class="calc-label">Calculated Load Current (I<sub>L</sub>):</span>
-                <span class="calc-value">${observedIL.toFixed(4)} A</span>
+                <span class="calc-value">${calculatedIL.toFixed(4)} A</span>
               </div>
             </div>
           </div>
