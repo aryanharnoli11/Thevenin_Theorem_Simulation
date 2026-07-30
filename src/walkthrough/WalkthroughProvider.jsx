@@ -283,6 +283,7 @@ const WalkthroughProvider = ({
         height: bodyStyle.height,
         left: bodyStyle.left,
         overflow: bodyStyle.overflow,
+        overscrollBehavior: bodyStyle.overscrollBehavior,
         position: bodyStyle.position,
         right: bodyStyle.right,
         top: bodyStyle.top,
@@ -291,10 +292,16 @@ const WalkthroughProvider = ({
       document: {
         height: documentStyle.height,
         overflow: documentStyle.overflow,
+        overscrollBehavior: documentStyle.overscrollBehavior,
         position: documentStyle.position,
       },
     }
     const closeForPageChange = () => close()
+
+    bodyStyle.overflow = 'hidden'
+    bodyStyle.overscrollBehavior = 'none'
+    documentStyle.overflow = 'hidden'
+    documentStyle.overscrollBehavior = 'none'
 
     window.addEventListener('hashchange', closeForPageChange)
     window.addEventListener('pagehide', closeForPageChange)

@@ -15,10 +15,8 @@ import { calculateReadings } from './utils/circuitMath.js'
 import { generateTheveninReport } from './utils/theveninReportGenerator.js'
  
 const BASE_WIDTH = 1440
-const BASE_HEIGHT = 960
 const DEFAULT_CONTENT_HEIGHT = 1800
-const PANEL_MAX_SCALE = 1
-const PANEL_VIEWPORT_MARGIN = 24
+const PANEL_VIEWPORT_GUTTER = 0
 const MIN_OBSERVATION_READINGS = 1
 const MAX_OBSERVATIONS = 10
 
@@ -36,10 +34,9 @@ const getScale = () => {
     return 1
   }
 
-  const widthScale = (window.innerWidth - PANEL_VIEWPORT_MARGIN) / BASE_WIDTH
-  const heightScale = (window.innerHeight - PANEL_VIEWPORT_MARGIN) / BASE_HEIGHT
+  const availableWidth = window.innerWidth - (PANEL_VIEWPORT_GUTTER * 2)
 
-  return Math.max(Math.min(widthScale, heightScale, PANEL_MAX_SCALE), 0.1)
+  return Math.max(availableWidth / BASE_WIDTH, 0.1)
 }
 
 
@@ -809,7 +806,6 @@ console.log("HIGHLIGHT IDS =", highlightedTerminalIds)
     calculationDone={calculationDone}
     calculatedValues={calculatedValues}
     verificationResult={verificationResult}
-    userCalculatedIL={userCalculatedIL}
     setUserCalculatedIL={setUserCalculatedIL}
     setVerificationResult={setVerificationResult}
     playStepById={playStepById}

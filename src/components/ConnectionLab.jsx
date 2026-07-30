@@ -488,7 +488,6 @@ if (
   }
 
 const meterReadings = {
-  vth: readings.vth ?? 0,
   il: readings.il ?? 0,
   rth: readings.rth ?? 0,
    showRth,

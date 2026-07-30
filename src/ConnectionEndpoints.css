@@ -506,6 +506,52 @@
   --jtk-endpoint-hover-stroke: #871b16;
 }
 
+/*
+  Permanent terminal colors, matched to the blue/red socket reference.
+  Terminal 12 is intentionally blue and terminal 13 intentionally red.
+*/
+:is(
+  .connection-terminal--endpoint-1,
+  .connection-terminal--endpoint-3,
+  .connection-terminal--endpoint-5,
+  .connection-terminal--endpoint-7,
+  .connection-terminal--endpoint-9,
+  .connection-terminal--endpoint-11,
+  .connection-terminal--endpoint-12
+) {
+  --terminal-neutral: #126bd6;
+  --terminal-neutral-rgb: 18, 107, 214;
+  --terminal-accent: #126bd6;
+  --terminal-accent-rgb: 18, 107, 214;
+  border-color: #074790;
+  background: linear-gradient(145deg, #55a6ff 0%, #126bd6 48%, #06428b 100%);
+  box-shadow:
+    0 2px 5px rgba(5, 47, 103, 0.42),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.58),
+    inset -2px -2px 4px rgba(3, 34, 79, 0.42);
+}
+
+:is(
+  .connection-terminal--endpoint-2,
+  .connection-terminal--endpoint-4,
+  .connection-terminal--endpoint-6,
+  .connection-terminal--endpoint-8,
+  .connection-terminal--endpoint-10,
+  .connection-terminal--endpoint-13,
+  .connection-terminal--endpoint-14
+) {
+  --terminal-neutral: #d72828;
+  --terminal-neutral-rgb: 215, 40, 40;
+  --terminal-accent: #d72828;
+  --terminal-accent-rgb: 215, 40, 40;
+  border-color: #8f1010;
+  background: linear-gradient(145deg, #ff6969 0%, #d72828 48%, #8c0e0e 100%);
+  box-shadow:
+    0 2px 5px rgba(92, 8, 8, 0.42),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.58),
+    inset -2px -2px 4px rgba(84, 5, 5, 0.42);
+}
+
 /* Adjust each terminal number label here. */
 .terminal-number-label--endpoint-1 {
   top: 255px;

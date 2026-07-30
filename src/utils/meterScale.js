@@ -1,4 +1,4 @@
-export const DIAL_START_ANGLE = -99
+export const DIAL_START_ANGLE = -90
 export const DIAL_SWEEP_ANGLE = 180
 
 export const getMeterNeedleAngle = ({

@@ -9,6 +9,7 @@ const EquipmentPanel = ({
   readings,
   experimentCase,
   showMultimeter,
+  voltage = 0,
 }) => (
   
   <section className="equipment-panel" id="equipment-panel">
@@ -19,7 +20,7 @@ const EquipmentPanel = ({
   powerOn={powerOn}
   value={
     experimentCase === 2
-      ? readings.vth
+      ? voltage
       : 0
   }
 />

@@ -24,14 +24,16 @@ const CalculationPanel = ({
   const [theveninInputs, setTheveninInputs] = useState({
     rth: '',
     vth: '',
+    rl: '',
   });
 
   const hasTheveninInputs =
     theveninInputs.rth.trim() !== '' &&
-    theveninInputs.vth.trim() !== '';
+    theveninInputs.vth.trim() !== '' &&
+    theveninInputs.rl.trim() !== '';
   const enteredRth = Number(theveninInputs.rth);
   const enteredVth = Number(theveninInputs.vth);
-  const loadResistance = Number(rl);
+  const loadResistance = Number(theveninInputs.rl);
   const loadCurrentDenominator = enteredRth + loadResistance;
   const inputsAreValid =
     hasTheveninInputs &&
@@ -68,7 +70,7 @@ const CalculationPanel = ({
       showStepAlert({
         title: 'Input Required',
         description:
-          'Please enter the Thevenin equivalent resistance and voltage.',
+          'Please enter the Thevenin equivalent voltage, resistance, and load resistance.',
         type: 'warning',
       });
       return;
@@ -78,7 +80,7 @@ const CalculationPanel = ({
       showStepAlert({
         title: 'Invalid Input',
         description:
-          'Please enter valid values for the Thevenin equivalent resistance and voltage.',
+          'Please enter valid values for the Thevenin equivalent voltage, resistance, and load resistance.',
         type: 'warning',
       });
       return;
@@ -105,7 +107,7 @@ const CalculationPanel = ({
     <section id="calculation-panel" className="graph-panel graph-panel--separate">
       <div className="graph-panel__heading">
         <div>
-          <h2>CALCULATIONS</h2>
+          <h2>THEORETICAL CALCULATIONS</h2>
         </div>
       </div>
 
@@ -169,86 +171,99 @@ const CalculationPanel = ({
 
         </div>
 
-        {/* Thevenin Calculation Parameters */}
-
-          {/* RTH */}
-        <div className="calc-field">
-          <div className="calc-label">Thevenin Equivalent Resistance:</div>
-          <div className="calc-manual-entry-control">
-            <div className="calc-input-group">
-              <div className="calc-prefix">R<sub>TH</sub></div>
-              <input
-                aria-label="Enter Thevenin equivalent resistance"
-                className="calc-display calc-user-input"
-                disabled={!calculationDone}
-                onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
-                placeholder="Enter value"
-                min="0"
-                step="0.01"
-                type="number"
-                value={theveninInputs.rth}
-              />
-              <div className="calc-suffix">Ω</div>
-            </div>
+        {/* Observed and calculated current share one continuous calculation area. */}
+        <div className="load-current-calculation">
+          <div className="observed-current-row">
+            <span className="load-current-heading">
+              Observed Load Current (<ElectricalText text="IL" />) =
+            </span>
+            <output
+              aria-label="Observed load current"
+              className="observed-current-value"
+            >
+              {calculationDone ? Number(observedIL).toFixed(3) : ''}
+              {calculationDone && observedIL !== '' ? ' A' : ''}
+            </output>
           </div>
-        </div>
 
-        {/* VTH */}
-        <div className="calc-field">
-          <div className="calc-label">Thevenin Equivalent Voltage:</div>
-          <div className="calc-manual-entry-control">
-            <div className="calc-input-group">
-              <div className="calc-prefix">V<sub>TH</sub></div>
-              <input
-                aria-label="Enter Thevenin equivalent voltage"
-                className="calc-display calc-user-input"
-                disabled={!calculationDone}
-                onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
-                placeholder="Enter value"
-                step="0.01"
-                type="number"
-                value={theveninInputs.vth}
-              />
-              <div className="calc-suffix">V</div>
-            </div>
-          </div>
-        </div>
-        <br />
+          <div className="calculated-current-section">
+            <h3 className="load-current-heading">
+              Calculated Load Current (<ElectricalText text="IL" />):
+            </h3>
 
-        {/* Verification Result Cards */}
-        <div className="results-section">
-          <fieldset className="result-card">
-            <legend>Observed Results</legend>
-            <div className="result-row">
-              <span className="result-label">
-                Observed Load Current (<ElectricalText text="IL" />):
+            <div
+              className="load-current-equation"
+              aria-label="Load current equals Thevenin voltage divided by the sum of Thevenin resistance and load resistance"
+            >
+              <span className="equation-lead">
+                <ElectricalText text="IL" /> =
               </span>
-              <div className="result-display">
-                {calculationDone ? Number(observedIL).toFixed(6) : ''}
+
+              <div className="equation-fraction">
+                <label className="equation-term equation-numerator">
+                  <ElectricalText text="Vth" />
+                  <input
+                    aria-label="Enter Thevenin equivalent voltage"
+                    className="formula-input"
+                    disabled={!calculationDone}
+                    onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
+                    placeholder="Enter Value"
+                    step="0.01"
+                    type="number"
+                    value={theveninInputs.vth}
+                  />
+                </label>
+
+                <div className="equation-denominator">
+                  <label className="equation-term">
+                    <ElectricalText text="Rth" />
+                    <input
+                      aria-label="Enter Thevenin equivalent resistance"
+                      className="formula-input"
+                      disabled={!calculationDone}
+                      min="0"
+                      onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
+                      placeholder="Enter Value"
+                      step="0.01"
+                      type="number"
+                      value={theveninInputs.rth}
+                    />
+                  </label>
+                  <span aria-hidden="true" className="equation-operator">+</span>
+                  <label className="equation-term">
+                    <ElectricalText text="RL" />
+                    <input
+                      aria-label="Enter load resistance"
+                      className="formula-input"
+                      disabled={!calculationDone}
+                      min="0"
+                      onChange={(event) => handleTheveninInputChange('rl', event.target.value)}
+                      placeholder="Enter Value"
+                      step="0.01"
+                      type="number"
+                      value={theveninInputs.rl}
+                    />
+                  </label>
+                </div>
               </div>
-              <div className="result-unit">A</div>
-            </div>
-          </fieldset>
 
-          <fieldset className="result-card">
-            <legend>Verification</legend>
-            <div className="result-row">
-              <span className="result-label">
-                Calculated Load Current (<ElectricalText text="IL" />):
-              </span>
-              <input
-                aria-label="Calculated load current"
-                type="number"
-                step="0.000001"
-                value={calculatedLoadCurrentDisplay}
-                readOnly
-                disabled={!calculationDone}
-                className="verification-input"
-                placeholder="Calculated automatically"
-              />
-              <div className="result-unit">A</div>
+              <div className="equation-result">
+                <span className="equation-equals" aria-hidden="true">=</span>
+                <input
+                  aria-label="Calculated load current"
+                  aria-readonly="true"
+                  className="formula-input formula-result-input"
+                  disabled={!calculationDone}
+                  placeholder="Answer"
+                  readOnly
+                  step="0.000001"
+                  type="number"
+                  value={calculatedLoadCurrentDisplay}
+                />
+                <span className="equation-unit">A</span>
+              </div>
             </div>
-          </fieldset>
+          </div>
         </div>
 
         {/* Action Button Segment */}
