@@ -55,12 +55,10 @@ const Ammeter = ({
 className={`connection-terminal connection-terminal--meter connection-terminal--meter-plus connection-terminal--endpoint-${terminals.positive}${getTerminalConnectedClass(connectedTerminalIds, `${terminals.positive}-endpoint`)}${getTerminalHighlightClass(highlightedTerminalIds, `${terminals.positive}-endpoint`)}`}
         data-polarity="plus"
         aria-label={`${label} positive terminal ${terminals.positive}`}
-        title={`${label} positive terminal ${terminals.positive}`}
       />
       <span
 className={`terminal-number-label terminal-number-label--meter-plus terminal-number-label--endpoint-${terminals.positive}${getTerminalNumberHighlightClass(highlightedTerminalIds, `${terminals.positive}-endpoint`)}`}
         data-terminal-id={`${terminals.positive}-endpoint`}
-        title={`${label} positive terminal ${terminals.positive}`}
       >
         {terminals.positive}
       </span>
@@ -70,12 +68,10 @@ className={`terminal-number-label terminal-number-label--meter-plus terminal-num
 className={`connection-terminal connection-terminal--meter connection-terminal--meter-minus connection-terminal--endpoint-${terminals.negative}${getTerminalConnectedClass(connectedTerminalIds, `${terminals.negative}-endpoint`)}${getTerminalHighlightClass(highlightedTerminalIds, `${terminals.negative}-endpoint`)}`}
         data-polarity="minus"
         aria-label={`${label} negative terminal ${terminals.negative}`}
-        title={`${label} negative terminal ${terminals.negative}`}
       />
       <span
 className={`terminal-number-label terminal-number-label--meter-minus terminal-number-label--endpoint-${terminals.negative}${getTerminalNumberHighlightClass(highlightedTerminalIds, `${terminals.negative}-endpoint`)}`}
         data-terminal-id={`${terminals.negative}-endpoint`}
-        title={`${label} negative terminal ${terminals.negative}`}
       >
         {terminals.negative}
       </span>

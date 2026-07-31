@@ -68,9 +68,12 @@ setShowRth,
   const onCheckConnectionsRef = useRef(onCheckConnections)
   const scaleRef = useRef(getJsPlumbZoom(scale))
   const { showStepAlert } = useLabAlerts()
+  const playStepByIdRef = useRef(playStepById)
+  const showStepAlertRef = useRef(showStepAlert)
   const [isLocked, setIsLocked] = useState(false)
   const experimentCaseRef = useRef(experimentCase)
   const autoConnectingRef = useRef(false)
+  const lastAutoConnectRequestRef = useRef(0)
   const aiGuidePlayingRef = useRef(aiGuidePlaying)
   const [connectedTerminalIds, setConnectedTerminalIds] = useState([])
 
@@ -83,6 +86,12 @@ useEffect(() => {
 useEffect(() => {
   aiGuidePlayingRef.current = aiGuidePlaying
 }, [aiGuidePlaying])
+useEffect(() => {
+  playStepByIdRef.current = playStepById
+}, [playStepById])
+useEffect(() => {
+  showStepAlertRef.current = showStepAlert
+}, [showStepAlert])
   useEffect(() => {
     let cancelled = false
     
@@ -146,7 +155,7 @@ useEffect(() => {
     return resistancesConfigured
   },
   () => {
-  showStepAlert(EXPERIMENT_ALERTS.resistanceRequired)
+  showStepAlertRef.current(EXPERIMENT_ALERTS.resistanceRequired)
 }
 )
 
@@ -177,12 +186,12 @@ instance.bind('connection', (info) => {
   //
   if (experimentCaseRef.current === 1) {
     if (isPair('5-endpoint', '11-endpoint')) {
-      playStepById?.(6)
+      playStepByIdRef.current?.(6)
       return
     }
 
     if (isPair('6-endpoint', '13-endpoint')) {
-      playStepById?.(7)
+      playStepByIdRef.current?.(7)
       return
     }
 
@@ -198,7 +207,7 @@ instance.bind('connection', (info) => {
   }
 
   if (result.isCorrect) {
-    playStepById?.(8)
+    playStepByIdRef.current?.(8)
   }
 
   return
@@ -207,9 +216,9 @@ instance.bind('connection', (info) => {
     if (!wrongConnectionPlaying) {
       wrongConnectionPlaying = true
 
-      playStepById?.(9)
-      showStepAlert(
-        EXPERIMENT_ALERTS.connectionsWrong,
+      playStepByIdRef.current?.(9)
+      showStepAlertRef.current(
+        EXPERIMENT_ALERTS.wrongConnection,
         aiGuidePlayingRef.current ? { audio: '#' } : {},
       )
       setTimeout(() => {
@@ -230,7 +239,7 @@ instance.bind('connection', (info) => {
     )
 
     if (result.isCorrect) {
-      playStepById?.(21)
+      playStepByIdRef.current?.(21)
       return
     }
 
@@ -242,13 +251,13 @@ instance.bind('connection', (info) => {
 
     if (isRequiredCase2Pair) {
       if (!hasConnectionBetween(instanceRef.current, '7-endpoint', '9-endpoint')) {
-        playStepById?.(17)
+        playStepByIdRef.current?.(17)
       } else if (!hasConnectionBetween(instanceRef.current, '8-endpoint', '10-endpoint')) {
-        playStepById?.(18)
+        playStepByIdRef.current?.(18)
       } else if (!hasConnectionBetween(instanceRef.current, '1-endpoint', '11-endpoint')) {
-        playStepById?.(19)
+        playStepByIdRef.current?.(19)
       } else if (!hasConnectionBetween(instanceRef.current, '2-endpoint', '13-endpoint')) {
-        playStepById?.(20)
+        playStepByIdRef.current?.(20)
       }
       return
     }
@@ -256,12 +265,11 @@ instance.bind('connection', (info) => {
     if (!wrongConnectionPlaying) {
       wrongConnectionPlaying = true
 
-      playStepById?.(9)
-      showStepAlert(
-        EXPERIMENT_ALERTS.connectionsWrong,
+      playStepByIdRef.current?.(9)
+      showStepAlertRef.current(
+        EXPERIMENT_ALERTS.wrongConnection,
         aiGuidePlayingRef.current ? { audio: '#' } : {},
       )
-console.log("CURRENT CASE =", experimentCase)
       setTimeout(() => {
         wrongConnectionPlaying = false
       }, 1800)
@@ -281,7 +289,7 @@ if (experimentCaseRef.current === 3) {
     )
 
     if (result.isCorrect) {
-      playStepById?.(29)
+      playStepByIdRef.current?.(29)
       return
     }
 
@@ -292,11 +300,11 @@ if (experimentCaseRef.current === 3) {
 
     if (isRequiredCase3Pair) {
       if (!hasConnectionBetween(instanceRef.current, '3-endpoint', '11-endpoint')) {
-        playStepById?.(26)
+        playStepByIdRef.current?.(26)
       } else if (!hasConnectionBetween(instanceRef.current, '4-endpoint', '12-endpoint')) {
-        playStepById?.(27)
+        playStepByIdRef.current?.(27)
       } else if (!hasConnectionBetween(instanceRef.current, '13-endpoint', '14-endpoint')) {
-        playStepById?.(28)
+        playStepByIdRef.current?.(28)
       }
       return
     }
@@ -304,9 +312,9 @@ if (experimentCaseRef.current === 3) {
     if (!wrongConnectionPlaying) {
         wrongConnectionPlaying = true
 
-        playStepById?.(9)
-        showStepAlert(
-          EXPERIMENT_ALERTS.connectionsWrong,
+        playStepByIdRef.current?.(9)
+        showStepAlertRef.current(
+          EXPERIMENT_ALERTS.wrongConnection,
           {
             ...(aiGuidePlayingRef.current ? { audio: '#' } : {}),
             description:
@@ -382,12 +390,13 @@ if (experimentCaseRef.current === 3) {
       return
     }
 
+    const currentExperimentCase = experimentCaseRef.current
     const result = validateTheveninConnections(
-  instanceRef.current,
-  experimentCase
-)
+      instanceRef.current,
+      currentExperimentCase,
+    )
 
-    if (experimentCase === 3 && result.isCorrect) {
+    if (currentExperimentCase === 3 && result.isCorrect) {
       lockJsPlumbCircuit(instanceRef.current, containerRef.current)
       setIsLocked(true)
     }
@@ -449,6 +458,10 @@ if (
   setCase1ConnectionsRemoved(true)
   setShowMultimeter(false)
   setShowRth(false)
+  showStepAlert(
+    EXPERIMENT_ALERTS.nextCaseConnectionMode,
+    aiGuidePlayingRef.current ? { audio: '#' } : {},
+  )
 }
 
 // --------------------
@@ -484,6 +497,10 @@ if (
   !case2ConnectionsRemoved
 ) {
   setCase2ConnectionsRemoved(true)
+  showStepAlert(
+    EXPERIMENT_ALERTS.nextCaseConnectionMode,
+    aiGuidePlayingRef.current ? { audio: '#' } : {},
+  )
 }
   }
 
@@ -496,10 +513,13 @@ const meterReadings = {
 useEffect(() => {
   if (
     autoConnectRequest === 0 ||
+    autoConnectRequest === lastAutoConnectRequestRef.current ||
     !instanceRef.current
   ) {
     return
   }
+
+  lastAutoConnectRequestRef.current = autoConnectRequest
 
   if (!resistancesConfigured) {
     showStepAlert(EXPERIMENT_ALERTS.resistanceRequiredForAutoConnect)
@@ -516,14 +536,35 @@ if (!result?.success) {
   autoConnectingRef.current = false
 
   showStepAlert({
-    title: 'Remove Existing Connections',
+    title: 'Auto Connect Unavailable',
     description:
-      'Please remove all current wire connections before proceeding to the next case.',
+      'Auto Connect is not available for the current experiment stage.',
     type: 'warning',
   })
 
   return
 }
+
+  const terminals = new Set()
+
+  instanceRef.current
+    .getAllConnections()
+    .forEach((connection) => {
+      terminals.add(connection.sourceId)
+      terminals.add(connection.targetId)
+    })
+
+  setConnectedTerminalIds([...terminals])
+
+  if (experimentCase === 2 && !case1ConnectionsRemoved) {
+    setCase1ConnectionsRemoved(true)
+    setShowMultimeter(false)
+    setShowRth(false)
+  }
+
+  if (experimentCase === 3 && !case2ConnectionsRemoved) {
+    setCase2ConnectionsRemoved(true)
+  }
 
   instanceRef.current.repaintEverything?.()
   playStepById?.(11)
@@ -537,6 +578,16 @@ if (!result?.success) {
 
 }, [
   autoConnectRequest,
+  case1ConnectionsRemoved,
+  case2ConnectionsRemoved,
+  experimentCase,
+  playStepById,
+  resistancesConfigured,
+  setCase1ConnectionsRemoved,
+  setCase2ConnectionsRemoved,
+  setShowMultimeter,
+  setShowRth,
+  showStepAlert,
 ])
 
   return (

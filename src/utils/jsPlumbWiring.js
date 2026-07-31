@@ -232,7 +232,6 @@ export const addTerminalEndpoint = (instance, terminalId, type) => {
 
   if (terminalTitle && endpoint?.canvas) {
     endpoint.canvas.setAttribute('aria-label', terminalTitle)
-    endpoint.canvas.setAttribute('title', terminalTitle)
   }
 }
 
@@ -348,41 +347,64 @@ export const autoConnectTheveninCircuit = (
   instance,
   experimentCase,
 ) => {
-  
-const connections = getAllConnections(instance)
+  const requiredPairsByCase = {
+    1: [
+      ['9-endpoint', '10-endpoint'],
+      ['5-endpoint', '11-endpoint'],
+      ['6-endpoint', '13-endpoint'],
+    ],
+    2: [
+      ['7-endpoint', '9-endpoint'],
+      ['8-endpoint', '10-endpoint'],
+      ['1-endpoint', '11-endpoint'],
+      ['2-endpoint', '13-endpoint'],
+    ],
+    3: [
+      ['7-endpoint', '9-endpoint'],
+      ['8-endpoint', '10-endpoint'],
+      ['3-endpoint', '11-endpoint'],
+      ['4-endpoint', '12-endpoint'],
+      ['13-endpoint', '14-endpoint'],
+    ],
+  }
+  const requiredPairs = requiredPairsByCase[experimentCase]
 
-if (experimentCase !== 3) {
-  if (connections.length > 0) {
+  if (!instance || !requiredPairs) {
     return {
       success: false,
-      reason: 'REMOVE_CONNECTIONS_FIRST',
+      reason: 'INVALID_CASE',
     }
   }
-}
 
-if (experimentCase === 3) {
+  const isRequiredPair = (sourceId, targetId) => (
+    requiredPairs.some(([firstId, secondId]) => (
+      (sourceId === firstId && targetId === secondId)
+      || (sourceId === secondId && targetId === firstId)
+    ))
+  )
+  let removedCount = 0
 
-  const allowedConnections = connections.filter((connection) => {
+  const existingConnections = [...getAllConnections(instance)]
 
-    const source = connection.sourceId || connection.source?.id
-    const target = connection.targetId || connection.target?.id
+  existingConnections.forEach((connection) => {
+    const sourceId = connection.sourceId || connection.source?.id
+    const targetId = connection.targetId || connection.target?.id
 
-    return (
-      (source === '7-endpoint' && target === '9-endpoint') ||
-      (source === '9-endpoint' && target === '7-endpoint') ||
+    if (isRequiredPair(sourceId, targetId)) {
+      return
+    }
 
-      (source === '8-endpoint' && target === '10-endpoint') ||
-      (source === '10-endpoint' && target === '8-endpoint')
-    )
+    if (typeof instance.deleteConnection === 'function') {
+      instance.deleteConnection(connection)
+    } else {
+      connection.detach?.()
+    }
+
+    removedCount += 1
   })
 
-  if (allowedConnections.length !== connections.length) {
-    return {
-      success: false,
-      reason: 'REMOVE_CONNECTIONS_FIRST',
-    }
-  }
-}
+  let addedCount = 0
+
   const connectPair = (a, b) => {
     if (hasConnectionBetween(instance, a, b)) return
 
@@ -392,33 +414,20 @@ if (experimentCase === 3) {
         ? 'negative'
         : 'positive',
     })
+
+    addedCount += 1
   }
 
-  // CASE 1
-  if (experimentCase === 1) {
-    connectPair('9-endpoint', '10-endpoint')
-    connectPair('5-endpoint', '11-endpoint')
-    connectPair('6-endpoint', '13-endpoint')
-  }
+  requiredPairs.forEach(([firstId, secondId]) => {
+    connectPair(firstId, secondId)
+  })
 
-  // CASE 2
-  if (experimentCase === 2) {
-    connectPair('7-endpoint', '9-endpoint')
-    connectPair('8-endpoint', '10-endpoint')
-    connectPair('1-endpoint', '11-endpoint')
-    connectPair('2-endpoint', '13-endpoint')
-  }
-
-  // CASE 3
-  if (experimentCase === 3) {
-    connectPair('7-endpoint', '9-endpoint')
-    connectPair('8-endpoint', '10-endpoint')
-    connectPair('3-endpoint', '11-endpoint')
-    connectPair('4-endpoint', '12-endpoint')
-    connectPair('13-endpoint', '14-endpoint')
-  }
+  const validation = validateTheveninConnections(instance, experimentCase)
 
   return {
-  success: true,
-}
+    addedCount,
+    removedCount,
+    ...(validation.isCorrect ? {} : { reason: 'CONNECTION_FAILED' }),
+    success: validation.isCorrect,
+  }
 }

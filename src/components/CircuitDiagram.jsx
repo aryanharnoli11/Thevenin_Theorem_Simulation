@@ -58,12 +58,10 @@ const CircuitDiagram = ({
 className={`connection-terminal connection-terminal--circuit connection-terminal--endpoint-${label}${getTerminalConnectedClass(connectedTerminalIds, id)}${getTerminalHighlightClass(highlightedTerminalIds, id)}`}
             data-polarity={polarity}
             aria-label={`Circuit terminal ${label}`}
-            title={`Circuit terminal ${label}`}
           />
           <span
 className={`terminal-number-label terminal-number-label--circuit terminal-number-label--endpoint-${label}${getTerminalNumberHighlightClass(highlightedTerminalIds, id)}`}
             data-terminal-id={id}
-            title={`Circuit terminal ${label}`}
           >
             {label}
           </span>

@@ -37,13 +37,11 @@ const handleVoltageChange = (event) => {
 className={`connection-terminal connection-terminal--power connection-terminal--power-plus connection-terminal--endpoint-7${getTerminalConnectedClass(connectedTerminalIds, '7-endpoint')}${getTerminalHighlightClass(highlightedTerminalIds, '7-endpoint')}`}
   data-polarity="plus"
   aria-label="Power supply positive terminal 7"
-  title="Power positive terminal 7"
 />
 
 <span
 className={`terminal-number-label terminal-number-label--power-plus terminal-number-label--endpoint-7${getTerminalNumberHighlightClass(highlightedTerminalIds, '7-endpoint')}`}
   data-terminal-id="7-endpoint"
-  title="Power positive terminal 7"
 >
   7
 </span>
@@ -54,13 +52,11 @@ className={`terminal-number-label terminal-number-label--power-plus terminal-num
 className={`connection-terminal connection-terminal--power connection-terminal--power-minus connection-terminal--endpoint-8${getTerminalConnectedClass(connectedTerminalIds, '8-endpoint')}${getTerminalHighlightClass(highlightedTerminalIds, '8-endpoint')}`}
   data-polarity="minus"
   aria-label="Power supply negative terminal 8"
-  title="Power negative terminal 8"
 />
 
 <span
 className={`terminal-number-label terminal-number-label--power-minus terminal-number-label--endpoint-8${getTerminalNumberHighlightClass(highlightedTerminalIds, '8-endpoint')}`}
   data-terminal-id="8-endpoint"
-  title="Power negative terminal 8"
 >
   8
 </span>

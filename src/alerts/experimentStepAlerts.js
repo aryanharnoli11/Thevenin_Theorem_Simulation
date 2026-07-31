@@ -97,6 +97,26 @@ export const EXPERIMENT_ALERTS = {
     title: 'Auto Connect Completed',
     type: 'success',
   },
+  connectionsRequired: {
+    audio: ALERT_AUDIO.makeConnections,
+    description:
+      'Please make the required circuit connections before clicking CHECK.',
+    icon: '🔌',
+    stepNumber: 1,
+    target: '#circuit-panel',
+    title: 'Circuit Connections Required',
+    type: 'warning',
+  },
+  nextCaseConnectionMode: {
+    audio: ALERT_AUDIO.removeExisting,
+    description:
+      'The previous case connections are cleared. Connect the next case manually or use Auto Connect.',
+    icon: '🔌',
+    stepNumber: 1,
+    target: '#auto-connect-button',
+    title: 'Ready for the Next Case',
+    type: 'info',
+  },
   circuitConnectionsCompleted: {
     description: 'The default wiring path has been placed on the apparatus.',
     icon: '✅',
@@ -359,6 +379,7 @@ wrongConnection: {
   type: 'error',
 },
 reportGenerated: {
+  audio: ALERT_AUDIO.reportGenerated,
   title: 'Report Ready',
   description:
     'Your report is ready. Click OK to generate and open it in a new tab.',

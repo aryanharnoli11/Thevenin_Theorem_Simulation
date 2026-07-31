@@ -42,13 +42,11 @@ const Voltmeter = ({
 className={`connection-terminal connection-terminal--meter connection-terminal--meter-plus connection-terminal--endpoint-1${getTerminalConnectedClass(connectedTerminalIds, '1-endpoint')}${getTerminalHighlightClass(highlightedTerminalIds, '1-endpoint')}`}
         data-polarity="plus"
         aria-label="Voltmeter positive terminal 1"
-        title="Voltmeter positive terminal 1"
       />
 
       <span
 className={`terminal-number-label terminal-number-label--meter-plus terminal-number-label--endpoint-1${getTerminalNumberHighlightClass(highlightedTerminalIds, '1-endpoint')}`}
         data-terminal-id="1-endpoint"
-        title="Voltmeter positive terminal 1"
       >
         1
       </span>
@@ -58,13 +56,11 @@ className={`terminal-number-label terminal-number-label--meter-plus terminal-num
 className={`connection-terminal connection-terminal--meter connection-terminal--meter-minus connection-terminal--endpoint-2${getTerminalConnectedClass(connectedTerminalIds, '2-endpoint')}${getTerminalHighlightClass(highlightedTerminalIds, '2-endpoint')}`}
         data-polarity="minus"
         aria-label="Voltmeter negative terminal 2"
-        title="Voltmeter negative terminal 2"
       />
 
       <span
 className={`terminal-number-label terminal-number-label--meter-minus terminal-number-label--endpoint-2${getTerminalNumberHighlightClass(highlightedTerminalIds, '2-endpoint')}`}
         data-terminal-id="2-endpoint"
-        title="Voltmeter negative terminal 2"
       >
         2
       </span>

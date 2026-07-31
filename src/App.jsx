@@ -74,6 +74,7 @@ const [autoConnectRequest, setAutoConnectRequest] = useState(0)
   const walkthroughWasOpenRef = useRef(false)
 const walkthroughCompletedRef = useRef(false)
 const resistanceIntroPlayedRef = useRef(false)
+const autoTransitionCaseRef = useRef(null)
 const { isOpen: walkthroughOpen } = useWalkthrough()
 const voltageGuidePlayedRef = useRef(false)
 const resistancesConfigured =
@@ -125,6 +126,13 @@ const resistancesConfigured =
   }, [])
 
 const handleAutoConnect = () => {
+  if (
+    (experimentCase === 2 && !case1ConnectionsRemoved)
+    || (experimentCase === 3 && !case2ConnectionsRemoved)
+  ) {
+    autoTransitionCaseRef.current = experimentCase
+  }
+
   setAutoConnectRequest((prev) => prev + 1)
 }
   const readings = useMemo(
@@ -216,6 +224,11 @@ useEffect(() => {
     return
   }
 
+  if (autoTransitionCaseRef.current === 2) {
+    autoTransitionCaseRef.current = null
+    return
+  }
+
   playStepsById?.([16, 17])
 
 }, [
@@ -225,6 +238,11 @@ useEffect(() => {
 
 useEffect(() => {
   if (!case2ConnectionsRemoved) {
+    return
+  }
+
+  if (autoTransitionCaseRef.current === 3) {
+    autoTransitionCaseRef.current = null
     return
   }
 
@@ -405,6 +423,7 @@ setUserCalculatedIL('')
 walkthroughCompletedRef.current = false
 resistanceIntroPlayedRef.current = false
 voltageGuidePlayedRef.current = false
+autoTransitionCaseRef.current = null
   }, [playStepById, showStepAlert, stopAiGuide])
 
   const handleReset = () => {
@@ -413,7 +432,17 @@ voltageGuidePlayedRef.current = false
   }
 
 
-const handlePrint = () => {
+const handlePrint = async () => {
+  clearAlerts()
+  const guideNarration = aiGuidePlaying
+    ? playStepById?.(36)
+    : new Promise((resolve) => window.setTimeout(resolve, 1500))
+
+  showStepAlert(
+    EXPERIMENT_ALERTS.printLayoutGenerated,
+    aiGuidePlaying ? { audio: '#' } : {},
+  )
+  await guideNarration
   window.print()
 }
 const handleGenerateReport = async () => {
@@ -433,6 +462,7 @@ const handleGenerateReport = async () => {
 
   const shouldOpenReport = await confirmAlert({
     ...EXPERIMENT_ALERTS.reportGenerated,
+    audio: aiGuidePlaying ? '#' : EXPERIMENT_ALERTS.reportGenerated.audio,
     confirmLabel: 'OK',
   })
 
@@ -525,11 +555,10 @@ else if (experimentCase === 3) {
 
     setStatus('Please make the connections first.')
 
-    showStepAlert(EXPERIMENT_ALERTS.connectionsWrong, {
-      description:
-        'No circuit wires were found. Drag node connections before checking.',
-      type: 'warning',
-    })
+    showStepAlert(
+      EXPERIMENT_ALERTS.connectionsRequired,
+      aiGuidePlaying ? { audio: '#' } : {},
+    )
 
     return
   }
@@ -653,7 +682,10 @@ setCalculatedValues({
 
   setCalculationDone(true)
   playStepById(32)
-  showStepAlert(EXPERIMENT_ALERTS.calculationReady)
+  showStepAlert(
+    EXPERIMENT_ALERTS.calculationReady,
+    aiGuidePlaying ? { audio: '#' } : {},
+  )
 
 }
 const guideHighlights = {
@@ -809,6 +841,7 @@ console.log("HIGHLIGHT IDS =", highlightedTerminalIds)
     setUserCalculatedIL={setUserCalculatedIL}
     setVerificationResult={setVerificationResult}
     playStepById={playStepById}
+    aiGuidePlaying={aiGuidePlaying}
   />
   <footer className="site-footer">
     © 2026 Virtual Labs, IIT Roorkee

@@ -9,6 +9,7 @@ const CalculationPanel = ({
   setUserCalculatedIL,
   setVerificationResult,
   playStepById,
+  aiGuidePlaying,
 }) => {
   // Extracting basic parameters from calculatedValues
   const r1 = calculatedValues?.r1 ?? '';
@@ -93,12 +94,18 @@ const CalculationPanel = ({
 
     if (isCorrect) {
       playStepById?.(34)
-     showStepAlert(EXPERIMENT_ALERTS.verificationSuccess)
+      showStepAlert(
+        EXPERIMENT_ALERTS.verificationSuccess,
+        aiGuidePlaying ? { audio: '#' } : {},
+      )
       setVerificationResult('✅ Verified Successfully');
 
     } else {
       playStepById?.(33)
-      showStepAlert(EXPERIMENT_ALERTS.verificationFailed)
+      showStepAlert(
+        EXPERIMENT_ALERTS.verificationFailed,
+        aiGuidePlaying ? { audio: '#' } : {},
+      )
       setVerificationResult('❌ Incorrect Calculation');
     }
   };
@@ -212,8 +219,7 @@ const CalculationPanel = ({
                     type="number"
                     value={theveninInputs.vth}
                   />
-                </label>
-
+                </label> 
                 <div className="equation-denominator">
                   <label className="equation-term">
                     <ElectricalText text="Rth" />
