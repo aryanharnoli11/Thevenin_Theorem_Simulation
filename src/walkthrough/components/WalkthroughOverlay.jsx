@@ -10,7 +10,7 @@ const {
   autoPlayAudioForStep,
   canGoNext,
   canGoPrevious,
-  close,
+  complete,
   currentStep,
   goToStep,
   isOpen,
@@ -43,7 +43,7 @@ const {
     canGoPrevious={canGoPrevious}
     currentStep={currentStep}
     key={activeStep.id}
-    onClose={close}
+    onClose={complete}
     onNext={next}
     onPrevious={previous}
     onSkip={() => goToStep(totalSteps - 1)}

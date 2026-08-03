@@ -5,14 +5,6 @@ import LabAlertCard from './LabAlertCard.jsx'
 import LabAlertSpotlight from './LabAlertSpotlight.jsx'
 import './labAlerts.css'
 
-const DEFAULT_DURATIONS = {
-  error: 9000,
-  info: 7000,
-  success: 7000,
-  warning: 9000,
-}
-
-const MIN_READABLE_DURATION = 7000
 const DEFAULT_ICONS = {
   error: '❌',
   info: '🎛️',
@@ -227,6 +219,10 @@ useEffect(() => {
   }, [])
 
   const normalizeAlert = useCallback((alert) => {
+    const normalizedAlert = { ...alert }
+
+    delete normalizedAlert.duration
+
     const type = ALERT_TYPES.includes(alert.type) ? alert.type : 'info'
     const requiresConfirmation = Boolean(alert.requiresConfirmation)
     const critical = Boolean(alert.critical)
@@ -239,11 +235,8 @@ useEffect(() => {
     })
 
     return {
-      ...alert,
+      ...normalizedAlert,
       critical,
-      duration: requiresConfirmation
-        ? null
-        : Math.max(alert.duration ?? DEFAULT_DURATIONS[type], MIN_READABLE_DURATION),
       icon: alert.icon ?? DEFAULT_ICONS[type],
       id,
       placement,
@@ -324,9 +317,10 @@ useEffect(() => {
   const contextValue = useMemo(() => ({
     clearAlerts,
     confirmAlert,
+    dismissAlert,
     showAlert,
     showStepAlert,
-  }), [clearAlerts, confirmAlert, showAlert, showStepAlert])
+  }), [clearAlerts, confirmAlert, dismissAlert, showAlert, showStepAlert])
 
 
 

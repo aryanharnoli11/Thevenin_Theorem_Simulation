@@ -30,6 +30,7 @@ export const loadWalkthroughConfig = (config, locale = FALLBACK_LOCALE) => {
   const defaultLocale = config?.defaultLocale ?? FALLBACK_LOCALE
   const resolvedLocale = locale || defaultLocale
   const rawSteps = Array.isArray(config?.steps) ? config.steps : []
+  const audioEnabled = config?.audio?.enabled !== false
 
   return {
     audio: config?.audio ?? {},
@@ -43,7 +44,7 @@ export const loadWalkthroughConfig = (config, locale = FALLBACK_LOCALE) => {
       .filter((step) => step?.target)
       .map((step, index) => ({
         ...step,
-        audio: resolveWalkthroughAudio(step.audio),
+        audio: audioEnabled ? resolveWalkthroughAudio(step.audio) : '#',
         description: getLocalizedValue(step.description, resolvedLocale, defaultLocale),
         id: String(step.id ?? index + 1),
         placement: step.placement ?? 'bottom',

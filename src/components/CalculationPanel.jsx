@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useLabAlerts } from '../alerts/useLabAlerts.js';
-import { EXPERIMENT_ALERTS } from '../alerts/experimentStepAlerts.js'
 import ElectricalText from './ElectricalText.jsx';
 const CalculationPanel = ({
   calculationDone,
@@ -8,8 +6,7 @@ const CalculationPanel = ({
   verificationResult,
   setUserCalculatedIL,
   setVerificationResult,
-  playStepById,
-  aiGuidePlaying,
+  onGuideEvent,
 }) => {
   // Extracting basic parameters from calculatedValues
   const r1 = calculatedValues?.r1 ?? '';
@@ -21,7 +18,6 @@ const CalculationPanel = ({
   const rl = calculatedValues?.rl ?? '';
   const observedIL = calculatedValues?.observedIL ?? '';
 
-  const { showStepAlert } = useLabAlerts();
   const [theveninInputs, setTheveninInputs] = useState({
     rth: '',
     vth: '',
@@ -68,21 +64,25 @@ const CalculationPanel = ({
     if (!calculationDone) return;
 
     if (!hasTheveninInputs) {
-      showStepAlert({
+      onGuideEvent?.({
+        alertType: 'warning',
         title: 'Input Required',
         description:
           'Please enter the Thevenin equivalent voltage, resistance, and load resistance.',
-        type: 'warning',
+        target: '#calculation-panel',
+        type: 'CALCULATION_INPUT_REQUIRED',
       });
       return;
     }
 
     if (!inputsAreValid) {
-      showStepAlert({
+      onGuideEvent?.({
+        alertType: 'warning',
         title: 'Invalid Input',
         description:
           'Please enter valid values for the Thevenin equivalent voltage, resistance, and load resistance.',
-        type: 'warning',
+        target: '#calculation-panel',
+        type: 'CALCULATION_INPUT_INVALID',
       });
       return;
     }
@@ -93,19 +93,17 @@ const CalculationPanel = ({
       Math.abs(calculatedLoadCurrent - actual) < 0.001;
 
     if (isCorrect) {
-      playStepById?.(34)
-      showStepAlert(
-        EXPERIMENT_ALERTS.verificationSuccess,
-        aiGuidePlaying ? { audio: '#' } : {},
-      )
+      onGuideEvent?.({
+        isCorrect: true,
+        type: 'VERIFICATION_RESULT',
+      })
       setVerificationResult('✅ Verified Successfully');
 
     } else {
-      playStepById?.(33)
-      showStepAlert(
-        EXPERIMENT_ALERTS.verificationFailed,
-        aiGuidePlaying ? { audio: '#' } : {},
-      )
+      onGuideEvent?.({
+        isCorrect: false,
+        type: 'VERIFICATION_RESULT',
+      })
       setVerificationResult('❌ Incorrect Calculation');
     }
   };

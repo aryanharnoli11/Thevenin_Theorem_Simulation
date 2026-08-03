@@ -6,20 +6,18 @@ import ActionButtons from './components/ActionButtons.jsx'
 import ControlPanel from './components/ControlPanel.jsx'
 import HeaderBoard from './components/HeaderBoard.jsx'
 import WalkthroughStartButton from './walkthrough/components/WalkthroughStartButton.jsx'
-import { EXPERIMENT_ALERTS } from './alerts/experimentStepAlerts.js'
 import { useLabAlerts } from './alerts/useLabAlerts.js'
-import { useAiGuideNarration } from './aiGuide/useAiGuideNarration.js'
+import { useAiGuideController } from './aiGuide/useAiGuideController.js'
 import CalculationPanel from './components/CalculationPanel.jsx'
- import { useWalkthrough } from './walkthrough/useWalkthrough.js'
+import { useWalkthrough } from './walkthrough/useWalkthrough.js'
 import { calculateReadings } from './utils/circuitMath.js'
 import { generateTheveninReport } from './utils/theveninReportGenerator.js'
- 
+
 const BASE_WIDTH = 1440
 const DEFAULT_CONTENT_HEIGHT = 1800
 const PANEL_VIEWPORT_GUTTER = 0
 const MIN_OBSERVATION_READINGS = 1
 const MAX_OBSERVATIONS = 10
-
 
 const getObservationSignature = ({ vth, rth, il }) => (
   [
@@ -39,49 +37,72 @@ const getScale = () => {
   return Math.max(availableWidth / BASE_WIDTH, 0.1)
 }
 
-
-
 const App = () => {
-  const { clearAlerts, confirmAlert, showStepAlert } = useLabAlerts()
+  const {
+    clearAlerts,
+    confirmAlert,
+    dismissAlert,
+    showStepAlert,
+  } = useLabAlerts()
+  const { completionCount } = useWalkthrough()
   const [scale, setScale] = useState(getScale)
   const [contentHeight, setContentHeight] = useState(DEFAULT_CONTENT_HEIGHT)
   const postSimulationContentRef = useRef(null)
-const [r1, setR1] = useState(0.1)
-const [r2, setR2] = useState(0.1)
-const [r3, setR3] = useState(0.1)
+  const walkthroughCompletionRef = useRef(0)
+  const [r1, setR1] = useState(0.1)
+  const [r2, setR2] = useState(0.1)
+  const [r3, setR3] = useState(0.1)
   const [rl, setRl] = useState(100)
-const [voltage, setVoltage] = useState(1)
+  const [voltage, setVoltage] = useState(1)
   const [powerOn, setPowerOn] = useState(false)
   const [voltageLocked, setVoltageLocked] = useState(false)
   const [observations, setObservations] = useState([])
-const [calculationDone, setCalculationDone] = useState(false)
-const [calculatedValues, setCalculatedValues] = useState(null)
-const [userCalculatedIL, setUserCalculatedIL] = useState('')
-const [verificationResult, setVerificationResult] = useState('')
-const [experimentCase, setExperimentCase] = useState(1)
-const [measuredRth, setMeasuredRth] = useState(null)
-const [measuredVth, setMeasuredVth] = useState(null)
-const [measuredIl, setMeasuredIl] = useState(null)
+  const [calculationDone, setCalculationDone] = useState(false)
+  const [calculatedValues, setCalculatedValues] = useState(null)
+  const [userCalculatedIL, setUserCalculatedIL] = useState('')
+  const [verificationResult, setVerificationResult] = useState('')
+  const [experimentCase, setExperimentCase] = useState(1)
+  const [measuredRth, setMeasuredRth] = useState(null)
+  const [measuredVth, setMeasuredVth] = useState(null)
+  const [measuredIl, setMeasuredIl] = useState(null)
   const [reportGenerated, setReportGenerated] = useState(false)
   const [reportPrinted, setReportPrinted] = useState(false)
-  const [status, setStatus] = useState('Make the connections, click CHECK, then set the resistance values.')
+  const [status, setStatus] = useState(
+    'Make the connections, click CHECK, then set the resistance values.',
+  )
   const [checkRequest, setCheckRequest] = useState(0)
   const [resetRequest, setResetRequest] = useState(0)
-const [autoConnectRequest, setAutoConnectRequest] = useState(0)
+  const [autoConnectRequest, setAutoConnectRequest] = useState(0)
   const [connectionsVerified, setConnectionsVerified] = useState(false)
   const [sessionStart, setSessionStart] = useState(() => Date.now())
   const [showRth, setShowRth] = useState(false)
-  const walkthroughWasOpenRef = useRef(false)
-const walkthroughCompletedRef = useRef(false)
-const resistanceIntroPlayedRef = useRef(false)
-const autoTransitionCaseRef = useRef(null)
-const { isOpen: walkthroughOpen } = useWalkthrough()
-const voltageGuidePlayedRef = useRef(false)
-const resistancesConfigured =
-  Number(r1) !== 0.1 &&
-  Number(r2) !== 0.1 &&
-  Number(r3) !== 0.1 &&
-  Number(rl) !== 100
+  const [case1ConnectionsRemoved, setCase1ConnectionsRemoved] = useState(false)
+  const [case2ConnectionsRemoved, setCase2ConnectionsRemoved] = useState(false)
+  const [showMultimeter, setShowMultimeter] = useState(false)
+  const handleGuideAudioError = useCallback(() => {
+    setStatus('AI Guide could not play its configured audio file.')
+  }, [])
+
+  const {
+    activeInstructionId,
+    notify: notifyGuide,
+    replayCurrentInstruction,
+    state: guideState,
+  } = useAiGuideController({
+    clearAlerts,
+    confirmAlert,
+    dismissAlert,
+    onAudioError: handleGuideAudioError,
+    showStepAlert,
+  })
+
+  const resistancesConfigured = (
+    Number(r1) !== 0.1
+    && Number(r2) !== 0.1
+    && Number(r3) !== 0.1
+    && Number(rl) !== 100
+  )
+
   useEffect(() => {
     const handleResize = () => setScale(getScale())
 
@@ -125,608 +146,460 @@ const resistancesConfigured =
     return () => window.removeEventListener('afterprint', handleAfterPrint)
   }, [])
 
-const handleAutoConnect = () => {
-  if (
-    (experimentCase === 2 && !case1ConnectionsRemoved)
-    || (experimentCase === 3 && !case2ConnectionsRemoved)
-  ) {
-    autoTransitionCaseRef.current = experimentCase
-  }
-
-  setAutoConnectRequest((prev) => prev + 1)
-}
-  const readings = useMemo(
-    () => calculateReadings({
-  voltage: powerOn ? voltage : 0,
-  r1,
-  r2,
-  r3,
-  rl,
-}),
-    [powerOn, r1, r2, r3, rl, voltage],
-  )
-console.log(readings)
-  const normalizedVoltage = Number(voltage.toFixed(1))
-  const currentReadingSignature = getObservationSignature({
-  vth: readings.vth,
-  rth: readings.rth,
-  il: readings.il,
-})
-const [case1ConnectionsRemoved, setCase1ConnectionsRemoved] = useState(false)
-const [case2ConnectionsRemoved, setCase2ConnectionsRemoved] = useState(false)
-const [showMultimeter, setShowMultimeter] = useState(false)
-  const hasDuplicateReading = observations.some((row) => (
-    row.voltage === normalizedVoltage
-      || getObservationSignature(row) === currentReadingSignature
-  ))
-  const readingCount = observations.length
-  const handleAiGuideStart = useCallback(() => {
-    setStatus('AI Guide narration started.')
-  }, [])
-
-const handleAiGuideFinish = useCallback(() => {
-  setStatus('AI Guide finished.')
-}, [])
-
-  const handleAiGuideError = useCallback(() => {
-    setStatus('AI Guide could not play its configured audio file.')
-  }, [])
-
-const {
-  isPlaying: aiGuidePlaying,
-  activeStepId,
-  start: startAiGuide,
-  stop: stopAiGuide,
-  playStepById,
-  playStepsById,
-} = useAiGuideNarration({
-    onError: handleAiGuideError,
-    onFinish: handleAiGuideFinish,
-    onStart: handleAiGuideStart,
-})
-useEffect(() => {
-  if (walkthroughOpen) {
-    walkthroughWasOpenRef.current = true
-    return
-  }
-
-  if (
-    !aiGuidePlaying ||
-    !walkthroughWasOpenRef.current ||
-    walkthroughCompletedRef.current
-  ) {
-    return
-  }
-
-  walkthroughCompletedRef.current = true
-
-  playStepById(2)
-}, [walkthroughOpen, aiGuidePlaying, playStepById])
-useEffect(() => {
-  if (
-    !aiGuidePlaying ||
-    !resistancesConfigured ||
-    resistanceIntroPlayedRef.current
-  ) {
-    return
-  }
-
-  resistanceIntroPlayedRef.current = true
-
-  playStepsById([3,4, 5])
-}, [
-  aiGuidePlaying,
-  resistancesConfigured,
-  playStepsById,
-])
-useEffect(() => {
-  if (!case1ConnectionsRemoved) {
-    return
-  }
-
-  if (autoTransitionCaseRef.current === 2) {
-    autoTransitionCaseRef.current = null
-    return
-  }
-
-  playStepsById?.([16, 17])
-
-}, [
-  case1ConnectionsRemoved,
-  playStepsById,
-])
-
-useEffect(() => {
-  if (!case2ConnectionsRemoved) {
-    return
-  }
-
-  if (autoTransitionCaseRef.current === 3) {
-    autoTransitionCaseRef.current = null
-    return
-  }
-
-  playStepsById([25, 26])
-
-}, [
-  case2ConnectionsRemoved,
-  playStepsById,
-])
-  const handleAiGuide = useCallback(() => {
-    if (aiGuidePlaying) {
-      stopAiGuide()
-      setStatus('AI Guide narration stopped.')
+  useEffect(() => {
+    if (
+      completionCount === 0
+      || completionCount === walkthroughCompletionRef.current
+    ) {
       return
     }
 
-    startAiGuide()
-  }, [aiGuidePlaying, startAiGuide, stopAiGuide])
+    walkthroughCompletionRef.current = completionCount
 
-  const recordObservation = () => {
-    if (!connectionsVerified) {
-      setStatus('Check the circuit connections before adding readings.')
-      showStepAlert(EXPERIMENT_ALERTS.connectionsWrong, {
-        description: 'Verify the wiring before storing current readings.',
-        stepNumber: 6,
-        target: '#check-button',
-        type: 'warning',
+    if (!guideState.guideStarted) {
+      return
+    }
+
+    void notifyGuide({ type: 'WALKTHROUGH_COMPLETED' })
+  }, [completionCount, guideState.guideStarted, notifyGuide])
+
+  useEffect(() => {
+    void notifyGuide({
+      configured: resistancesConfigured,
+      selections: {
+        r1: Number(r1) !== 0.1,
+        r2: Number(r2) !== 0.1,
+        r3: Number(r3) !== 0.1,
+        rl: Number(rl) !== 100,
+      },
+      type: 'RESISTANCE_CONFIGURATION',
+    })
+  }, [notifyGuide, r1, r2, r3, resistancesConfigured, rl])
+
+  const readings = useMemo(
+    () => calculateReadings({
+      voltage: powerOn ? voltage : 0,
+      r1,
+      r2,
+      r3,
+      rl,
+    }),
+    [powerOn, r1, r2, r3, rl, voltage],
+  )
+  const normalizedVoltage = Number(voltage.toFixed(1))
+  const currentReadingSignature = getObservationSignature({
+    vth: readings.vth,
+    rth: readings.rth,
+    il: readings.il,
+  })
+  const hasDuplicateReading = observations.some((row) => (
+    row.voltage === normalizedVoltage
+    || getObservationSignature(row) === currentReadingSignature
+  ))
+  const readingCount = observations.length
+
+  const handleAiGuide = useCallback(() => {
+    if (guideState.guideStarted) {
+      setStatus('AI Guide is replaying the current instruction.')
+      if (guideState.startupCompleted) {
+        void replayCurrentInstruction()
+      } else {
+        void notifyGuide({ type: 'START_GUIDE' })
+      }
+      return
+    }
+
+    setStatus('AI Guide narration started.')
+    void notifyGuide({ type: 'START_GUIDE' })
+  }, [
+    guideState.guideStarted,
+    guideState.startupCompleted,
+    notifyGuide,
+    replayCurrentInstruction,
+  ])
+
+  const handleAutoConnect = () => {
+    if (!resistancesConfigured) {
+      void notifyGuide({ type: 'RESISTANCE_REQUIRED' })
+      return
+    }
+
+    if (
+      (experimentCase === 2 && !case1ConnectionsRemoved)
+      || (experimentCase === 3 && !case2ConnectionsRemoved)
+    ) {
+      void notifyGuide({
+        caseNumber: experimentCase,
+        type: 'AUTO_CONNECT_BLOCKED_EXISTING',
       })
       return
     }
 
-   if (experimentCase !== 1 && !powerOn) {
+    setAutoConnectRequest((current) => current + 1)
+  }
+
+  const recordObservation = () => {
+    if (!connectionsVerified) {
+      setStatus('Check the circuit connections before adding readings.')
+      void notifyGuide({
+        description: 'Verify the wiring before storing current readings.',
+        target: '#check-button',
+        title: 'Check Connections First',
+        type: 'ADD_REJECTED',
+      })
+      return
+    }
+
+    if (experimentCase !== 1 && !powerOn) {
       setStatus('Switch on the power supply before adding readings.')
-      showStepAlert(EXPERIMENT_ALERTS.cannotStartPower, {
+      void notifyGuide({
         description: 'Switch on the verified power supply before adding readings.',
-        stepNumber: 6,
         target: '#power-toggle-button',
+        title: 'Switch On the Power Supply',
+        type: 'ADD_REJECTED',
       })
       return
     }
 
     if (experimentCase !== 1 && normalizedVoltage <= 0) {
       setStatus('Set the power supply voltage before adding a reading.')
-      showStepAlert(EXPERIMENT_ALERTS.adjustVoltage, {
-        dedupeKey: 'step-6-zero-voltage',
+      void notifyGuide({
         description: 'Increase the voltage above 0 V before adding a reading.',
         target: '#voltage-control',
-        type: 'warning',
+        title: 'Set the Supply Voltage',
+        type: 'ADD_REJECTED',
       })
       return
     }
 
     if (readingCount >= MAX_OBSERVATIONS) {
       setStatus('Observation table is full. Reset the experiment for a new run.')
-      showStepAlert(EXPERIMENT_ALERTS.minimumReadingsRequired, {
+      void notifyGuide({
         description: 'The observation table already contains the maximum number of readings.',
+        target: '#observation-table-panel',
         title: 'Observation Table Is Full',
+        type: 'ADD_REJECTED',
       })
       return
     }
 
     if (hasDuplicateReading) {
       setStatus('Duplicate reading cannot be added to the observation table.')
-      showStepAlert(EXPERIMENT_ALERTS.readingAlreadyExists, {
+      void notifyGuide({
         description: 'This reading already exists in the observation table. Change the voltage before adding another reading.',
+        target: '#voltage-control',
         title: 'Duplicate Reading Not Allowed',
+        type: 'ADD_REJECTED',
       })
       return
     }
 
- if (experimentCase === 1) {
+    const completedCase = experimentCase
 
-  setObservations([
-    {
-      id: 1,
-      rth: readings.rth,
-      vth: null,
-      il: null,
-      rl,
-    },
-  ])
+    if (completedCase === 1) {
+      setObservations([
+        {
+          id: 1,
+          rth: readings.rth,
+          vth: null,
+          il: null,
+          rl,
+        },
+      ])
+      setMeasuredRth(readings.rth)
+      setConnectionsVerified(false)
+      setExperimentCase(2)
+      setCase1ConnectionsRemoved(false)
+    } else if (completedCase === 2) {
+      setObservations([
+        {
+          ...observations[0],
+          vth: readings.vth,
+        },
+      ])
+      setMeasuredVth(readings.vth)
+      setPowerOn(false)
+      setVoltageLocked(true)
+      setConnectionsVerified(false)
+      setExperimentCase(3)
+      setCase2ConnectionsRemoved(false)
+    } else if (completedCase === 3) {
+      setObservations([
+        {
+          ...observations[0],
+          il: readings.il,
+        },
+      ])
+      setMeasuredIl(readings.il)
+      setConnectionsVerified(false)
+      setExperimentCase(4)
+    }
 
-  setMeasuredRth(readings.rth)
-
-  playStepById(15)
-  showStepAlert(
-    EXPERIMENT_ALERTS.readingAddedCase1,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-  setConnectionsVerified(false)
-  voltageGuidePlayedRef.current = false
-  setExperimentCase(2)
-  setCase1ConnectionsRemoved(false)
-}
-
-else if (experimentCase === 2) {
-  setObservations([
-    {
-      ...observations[0],
-      vth: readings.vth,
-    },
-  ])
-
-
-   setMeasuredVth(readings.vth)
-   playStepById(24)
-   showStepAlert(
-     EXPERIMENT_ALERTS.readingAddedCase2,
-     aiGuidePlaying ? { audio: '#' } : {},
-   )
-   setPowerOn(false)
-   setVoltageLocked(true)
-setConnectionsVerified(false)
-voltageGuidePlayedRef.current = false
-setExperimentCase(3)
-setCase2ConnectionsRemoved(false)
-}
-
-else if (experimentCase === 3) {
-  setObservations([
-    {
-      ...observations[0],
-      il: readings.il,
-    },
-  ])
-
-  setMeasuredIl(readings.il)
-  playStepById(31)
-  showStepAlert(
-    EXPERIMENT_ALERTS.readingAdded,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-  setConnectionsVerified(false)
-  setExperimentCase(4)
-  
-}
-  
+    void notifyGuide({
+      caseNumber: completedCase,
+      type: 'READING_ADDED',
+    })
     setReportGenerated(false)
     setReportPrinted(false)
     setStatus(
-      experimentCase === 2
+      completedCase === 2
         ? 'Case 2 reading added. The power supply switched off automatically; its voltage setting and connections are retained for Case 3.'
-        : 'Reading added to the observation table.'
+        : 'Reading added to the observation table.',
     )
-
-//    if (nextObservationCount === MIN_OBSERVATION_READINGS) {
-//   showStepAlert(EXPERIMENT_ALERTS.sufficientData)
-// }
   }
 
   const resetSimulation = useCallback(() => {
-    stopAiGuide()
-    playStepById(35)
     setPowerOn(false)
     setVoltage(1)
     setVoltageLocked(false)
-setR1(0.1)
-setR2(0.1)
-setR3(0.1)
-setRl(100)
+    setR1(0.1)
+    setR2(0.1)
+    setR3(0.1)
+    setRl(100)
     setObservations([])
     setCalculationDone(false)
-setCalculatedValues(null)
-setVerificationResult('')
-setUserCalculatedIL('')
+    setCalculatedValues(null)
+    setVerificationResult('')
+    setUserCalculatedIL('')
     setReportGenerated(false)
     setReportPrinted(false)
     setCheckRequest(0)
+    setAutoConnectRequest(0)
     setExperimentCase(1)
     setConnectionsVerified(false)
+    setMeasuredRth(null)
+    setMeasuredVth(null)
+    setMeasuredIl(null)
+    setCase1ConnectionsRemoved(false)
+    setCase2ConnectionsRemoved(false)
     setResetRequest((current) => current + 1)
     setSessionStart(Date.now())
     setStatus('Simulation reset. Make the circuit connections again.')
-    showStepAlert(EXPERIMENT_ALERTS.resetSuccess)
     setShowRth(false)
     setShowMultimeter(false)
-    walkthroughWasOpenRef.current = false
-walkthroughCompletedRef.current = false
-resistanceIntroPlayedRef.current = false
-voltageGuidePlayedRef.current = false
-autoTransitionCaseRef.current = null
-  }, [playStepById, showStepAlert, stopAiGuide])
+    walkthroughCompletionRef.current = completionCount
+    void notifyGuide({ type: 'RESET' })
+  }, [completionCount, notifyGuide])
 
-  const handleReset = () => {
-    clearAlerts()
-    resetSimulation()
+  const handlePrint = async () => {
+    await notifyGuide({ type: 'PRINT' })
+    window.print()
   }
 
+  const handleGenerateReport = async () => {
+    if (!calculationDone) {
+      void notifyGuide({
+        description: 'Please click CALCULATE before generating report.',
+        target: '#calculate-button',
+        title: 'Calculate First',
+        type: 'REPORT_BLOCKED',
+      })
+      return
+    }
 
-const handlePrint = async () => {
-  clearAlerts()
-  const guideNarration = aiGuidePlaying
-    ? playStepById?.(36)
-    : new Promise((resolve) => window.setTimeout(resolve, 1500))
+    if (readingCount < MIN_OBSERVATION_READINGS) {
+      void notifyGuide({
+        description: 'Please add at least one observation.',
+        target: '#observation-table-panel',
+        title: 'Observation Required',
+        type: 'REPORT_BLOCKED',
+      })
+      return
+    }
 
-  showStepAlert(
-    EXPERIMENT_ALERTS.printLayoutGenerated,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-  await guideNarration
-  window.print()
-}
-const handleGenerateReport = async () => {
-  if (!calculationDone) {
-    window.alert('Please click CALCULATE before generating report.')
-    return
+    setStatus('Report is ready. Click OK to open it in a new tab.')
+    const shouldOpenReport = await notifyGuide({ type: 'REPORT_REQUEST' })
+
+    if (!shouldOpenReport) {
+      setStatus('Report opening cancelled.')
+      return
+    }
+
+    const reportOpened = generateTheveninReport({
+      observations,
+      r1,
+      r2,
+      r3,
+      rl,
+      vth: calculatedValues?.vth ?? 0,
+      rth: calculatedValues?.rth ?? 0,
+      calculatedIL: Number(userCalculatedIL),
+      sessionStart,
+    })
+
+    if (!reportOpened) {
+      setStatus('The report window was blocked. Allow popups and try again.')
+      return
+    }
+
+    setReportGenerated(true)
+    void notifyGuide({ type: 'REPORT_GENERATED' })
+    setStatus('Report generated and opened in a new tab.')
   }
-
-  if (readingCount < MIN_OBSERVATION_READINGS) {
-    window.alert('Please add at least one observation.')
-    return
-  }
-
-  clearAlerts()
-  setStatus('Report is ready. Click OK to open it in a new tab.')
-  playStepById?.(37)
-
-  const shouldOpenReport = await confirmAlert({
-    ...EXPERIMENT_ALERTS.reportGenerated,
-    audio: aiGuidePlaying ? '#' : EXPERIMENT_ALERTS.reportGenerated.audio,
-    confirmLabel: 'OK',
-  })
-
-  if (!shouldOpenReport) {
-    setStatus('Report opening cancelled.')
-    return
-  }
-
-  const reportOpened = generateTheveninReport({
-    observations,
-    r1,
-    r2,
-    r3,
-    rl,
-    vth: calculatedValues?.vth ?? 0,
-    rth: calculatedValues?.rth ?? 0,
-    calculatedIL: Number(userCalculatedIL),
-    sessionStart,
-  })
-
-  if (!reportOpened) {
-    setStatus('The report window was blocked. Allow popups and try again.')
-    return
-  }
-
-  setReportGenerated(true)
-  setStatus('Report generated and opened in a new tab.')
-}
 
   const scaledWidth = Math.ceil(BASE_WIDTH * scale)
   const scaledHeight = Math.ceil(contentHeight * scale)
+
   const handleCheckConnections = useCallback((result) => {
+    void notifyGuide({
+      caseNumber: experimentCase,
+      result,
+      type: 'CHECK_RESULT',
+    })
 
-  if (result.isCorrect) {
-    clearAlerts()
+    if (result.isCorrect) {
+      if (experimentCase === 1) {
+        setShowRth(true)
+        setShowMultimeter(true)
+      }
 
-    if (experimentCase === 1) {
-      setShowRth(true)
-      setShowMultimeter(true)
-      playStepById(14)
+      setConnectionsVerified(true)
+
+      if (experimentCase === 1) {
+        setStatus('Right connections! Click ADD to measure RTH.')
+      } else if (experimentCase === 2) {
+        setStatus(
+          'Right connections! Turn ON power supply and click ADD to measure VTH.',
+        )
+      } else if (experimentCase === 3) {
+        setStatus(
+          'Right connections! Turn ON power supply and click ADD to measure IL.',
+        )
+      }
+
+      return
     }
 
-    setConnectionsVerified(true)
+    setConnectionsVerified(false)
 
-    if (experimentCase === 1) {
-      setStatus('Right connections! Click ADD to measure RTH.')
+    if (result.totalConnections === 0) {
+      setStatus('Please make the connections first.')
+      return
     }
 
-    else if (experimentCase === 2) {
-      setStatus(
-        'Right connections! Turn ON power supply and click ADD to measure VTH.'
-      )
-    }
-
-    else if (experimentCase === 3) {
-      setStatus(
-        'Right connections! Turn ON power supply and click ADD to measure IL.'
-      )
-    }
-
-    if (experimentCase === 1) {
-  showStepAlert(
-    EXPERIMENT_ALERTS.connectionsVerified,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-}
-else if (experimentCase === 2) {
-  playStepById(22)
-  showStepAlert(
-    EXPERIMENT_ALERTS.connectionsVerifiedCase2,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-}
-else if (experimentCase === 3) {
-  playStepById(38)
-  showStepAlert(
-    EXPERIMENT_ALERTS.connectionsVerifiedCase3,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-}
-
-    return
-  }
-
-  setConnectionsVerified(false)
-
-  if (result.totalConnections === 0) {
-
-    playStepById(13)
-
-    setStatus('Please make the connections first.')
-
-    showStepAlert(
-      EXPERIMENT_ALERTS.connectionsRequired,
-      aiGuidePlaying ? { audio: '#' } : {},
-    )
-
-    return
-  }
-
-  if (result.matchedCount === 0) {
-    playStepById(9)
-  } else {
-    playStepById(10)
-  }
-
-  setStatus(
-    'Invalid connections. Please check the wiring and try again.'
-  )
-
-  showStepAlert(
-    result.matchedCount === 0
-      ? EXPERIMENT_ALERTS.connectionsWrong
-      : EXPERIMENT_ALERTS.someConnectionsWrong,
-    aiGuidePlaying ? { audio: '#' } : {},
-  )
-
-}, [aiGuidePlaying, clearAlerts, experimentCase, playStepById, showStepAlert])
+    setStatus('Invalid connections. Please check the wiring and try again.')
+  }, [experimentCase, notifyGuide])
 
   const handleCheck = () => {
+    if (!resistancesConfigured) {
+      void notifyGuide({ type: 'RESISTANCE_REQUIRED' })
+      return
+    }
+
     setCheckRequest((current) => current + 1)
   }
+
   const handleTogglePower = () => {
-  // Case 1 - Power supply should never be used
-  if (experimentCase === 1) {
-    showStepAlert(EXPERIMENT_ALERTS.cannotStartPower)
+    if (experimentCase === 1) {
+      void notifyGuide({
+        description: 'Power supply is not required during Case 1.',
+        target: '#power-toggle-button',
+        title: 'Power Supply Not Required',
+        type: 'POWER_REJECTED',
+      })
+      setStatus('Power supply is not required during Case 1.')
+      return
+    }
+
+    if (!powerOn && !connectionsVerified) {
+      void notifyGuide({
+        description: 'Complete all required connections before switching ON the power supply.',
+        target: '#check-button',
+        title: 'Complete Connections First',
+        type: 'POWER_REJECTED',
+      })
+      setStatus(
+        'Complete all required connections before switching ON the power supply.',
+      )
+      return
+    }
+
+    if (powerOn) {
+      setPowerOn(false)
+      setStatus('Power supply switched off.')
+      return
+    }
+
+    setPowerOn(true)
     setStatus(
-      'Power supply is not required during Case 1.'
+      experimentCase === 3
+        ? `Power supply switched on at the previous setting of ${voltage} V. Add the reading.`
+        : 'Power supply switched on. Adjust voltage and add the reading.',
     )
-    return
+    void notifyGuide({
+      caseNumber: experimentCase,
+      type: 'POWER_ON',
+    })
   }
 
-  // Case 2 & Case 3
-  if (!powerOn && !connectionsVerified) {
-    showStepAlert(EXPERIMENT_ALERTS.cannotStartPower)
-    setStatus(
-      'Complete all required connections before switching ON the power supply.'
-    )
-    return
+  const handleVoltageChange = useCallback((nextVoltage) => {
+    if (voltageLocked) {
+      return
+    }
+
+    setVoltage(nextVoltage)
+
+    if (powerOn && experimentCase === 2) {
+      void notifyGuide({
+        type: 'VOLTAGE_SET',
+        voltage: nextVoltage,
+      })
+    }
+  }, [experimentCase, notifyGuide, powerOn, voltageLocked])
+
+  const handleCalculate = () => {
+    setCalculatedValues({
+      r1,
+      r2,
+      r3,
+      rl: observations[0]?.rl ?? rl,
+      voltageSource: voltage,
+      vth: observations[0]?.vth ?? measuredVth,
+      rth: observations[0]?.rth ?? measuredRth,
+      observedIL: measuredIl,
+    })
+    setCalculationDone(true)
+    void notifyGuide({ type: 'CALCULATE' })
   }
 
-if (powerOn) {
-    setPowerOn(false)
-    setStatus('Power supply switched off.')
-    return
-}
-
-  setPowerOn(true)
-  setStatus(
-    experimentCase === 3
-      ? `Power supply switched on at the previous setting of ${voltage} V. Add the reading.`
-      : 'Power supply switched on. Adjust voltage and add the reading.'
+  const guideHighlights = {
+    5: ['5-endpoint', '11-endpoint'],
+    6: ['6-endpoint', '13-endpoint'],
+    7: ['9-endpoint', '10-endpoint'],
+    17: ['7-endpoint', '9-endpoint'],
+    18: ['8-endpoint', '10-endpoint'],
+    19: ['1-endpoint', '11-endpoint'],
+    20: ['2-endpoint', '13-endpoint'],
+    26: ['3-endpoint', '11-endpoint'],
+    27: ['4-endpoint', '12-endpoint'],
+    28: ['13-endpoint', '14-endpoint'],
+  }
+  const highlightedTerminalIds = (
+    guideHighlights[Number(activeInstructionId)] ?? []
   )
-  clearAlerts()
-  showStepAlert(
-    EXPERIMENT_ALERTS.powerOn,
-    experimentCase === 3
-      ? {
-          audio: aiGuidePlaying ? '#' : EXPERIMENT_ALERTS.powerOn.audio,
-          description:
-            'Power supply switched ON at the Case 2 voltage setting. Click ADD to record IL.',
-          target: '#add-reading-button',
-        }
-      : {},
+  const verificationSucceeded = verificationResult.includes(
+    'Verified Successfully',
   )
-  if (experimentCase === 3) {
-    playStepById(30)
-  }
-}
-
-
-const handleVoltageChange = useCallback((nextVoltage) => {
-
-  if (voltageLocked) {
-    return
-  }
-
-  setVoltage(nextVoltage)
-
-  if (
-    powerOn &&
-    experimentCase === 2 &&
-    !voltageGuidePlayedRef.current
-  ) {
-    voltageGuidePlayedRef.current = true
-    playStepById(23)
-    clearAlerts()
-    showStepAlert(
-      EXPERIMENT_ALERTS.adjustVoltage,
-      aiGuidePlaying ? { audio: '#' } : {},
-    )
-  }
-
-}, [
-  aiGuidePlaying,
-  clearAlerts,
-  powerOn,
-  experimentCase,
-  playStepById,
-  showStepAlert,
-  voltageLocked,
-])
-
- const handleCalculate = () => {
-setCalculatedValues({
-  r1,
-  r2,
-  r3,
-  rl: observations[0]?.rl ?? rl,
-
-  voltageSource: voltage,
-
-  vth: observations[0]?.vth ?? measuredVth,
-  rth: observations[0]?.rth ?? measuredRth,
-  observedIL: measuredIl,
-})
-
-  setCalculationDone(true)
-  playStepById(32)
-  showStepAlert(
-    EXPERIMENT_ALERTS.calculationReady,
-    aiGuidePlaying ? { audio: '#' } : {},
+  const activeInstructionStep = (
+    !resistancesConfigured
+      ? 'step1'
+      : experimentCase === 1
+        || (experimentCase === 2 && !case1ConnectionsRemoved)
+        ? 'case1'
+        : experimentCase === 2
+          || (experimentCase === 3 && !case2ConnectionsRemoved)
+          ? 'case2'
+          : experimentCase === 3
+            ? 'case3'
+            : !calculationDone
+              ? 'step3'
+              : !verificationSucceeded
+                ? 'step4'
+                : !reportPrinted
+                  ? 'step5'
+                  : 'step6'
   )
 
-}
-const guideHighlights = {
-  5: ['5-endpoint', '11-endpoint'],
-  6: ['6-endpoint', '13-endpoint'],
-  7: ['9-endpoint', '10-endpoint'],
-
-  17: ['7-endpoint', '9-endpoint'],
-  18: ['8-endpoint', '10-endpoint'],
-  19: ['1-endpoint', '11-endpoint'],
-  20: ['2-endpoint', '13-endpoint'],
-
-  26: ['3-endpoint', '11-endpoint'],
-  27: ['4-endpoint', '12-endpoint'],
-  28: ['13-endpoint', '14-endpoint'],
-}
-
-const highlightedTerminalIds =
-  guideHighlights[Number(activeStepId)] ?? []
-const verificationSucceeded =
-  verificationResult.includes('Verified Successfully')
-const activeInstructionStep =
-  !resistancesConfigured
-    ? 'step1'
-    : experimentCase === 1 ||
-        (experimentCase === 2 && !case1ConnectionsRemoved)
-      ? 'case1'
-      : experimentCase === 2 ||
-          (experimentCase === 3 && !case2ConnectionsRemoved)
-        ? 'case2'
-        : experimentCase === 3
-          ? 'case3'
-          : !calculationDone
-            ? 'step3'
-            : !verificationSucceeded
-              ? 'step4'
-              : !reportPrinted
-                ? 'step5'
-                : 'step6'
-console.log("ACTIVE STEP =", activeStepId)
-console.log("HIGHLIGHT IDS =", highlightedTerminalIds)
   return (
     <div id="app-wrapper">
       <div
@@ -746,107 +619,105 @@ console.log("HIGHLIGHT IDS =", highlightedTerminalIds)
           <main className="simulation-shell" id="walkthrough-demo-experiment">
             <HeaderBoard />
             <WalkthroughStartButton
-              highlighted={Number(activeStepId) === 1}
+              highlighted={
+                guideState.startupCompleted
+                && !guideState.walkthroughCompleted
+              }
               variant="side-tab"
             />
-            {/* <StatusBar status={status} /> */}
-            <span className="sr-only" role="status" aria-live="polite">{status}</span>
+            <span className="sr-only" role="status" aria-live="polite">
+              {status}
+            </span>
 
             <section className="workspace-grid">
               <aside className="left-panel">
                 <ActionButtons
                   activeInstructionStep={activeInstructionStep}
                   activeButtons={{
-                    onAiGuide: aiGuidePlaying,
+                    onAiGuide: guideState.guideStarted,
                   }}
-      disabledButtons={{
-  onAdd: !connectionsVerified,
-  onCheck: false,
-  onPrint: false,
-  onCalculate: experimentCase !== 4,
-}}
+                  disabledButtons={{
+                    onAdd: !connectionsVerified,
+                    onCalculate: experimentCase !== 4,
+                    onCheck: false,
+                    onPrint: false,
+                  }}
                   onAdd={recordObservation}
-                  onCheck={handleCheck}
-         
-                  onPrint={handlePrint}
-                  onReset={handleReset}
                   onAiGuide={handleAiGuide}
-                  onCalculate={handleCalculate}
                   onAutoConnect={handleAutoConnect}
+                  onCalculate={handleCalculate}
+                  onCheck={handleCheck}
+                  onPrint={handlePrint}
+                  onReset={resetSimulation}
                 />
 
                 <ControlPanel
-  locked={powerOn}
-  minReadings={MIN_OBSERVATION_READINGS}
-  onGenerateReport={handleGenerateReport}
-  observations={observations}
-  readingCount={readingCount}
-  reportGenerated={reportGenerated}
-  rl={rl}
-  r1={r1}
-  r2={r2}
-  r3={r3}
-  setRl={setRl}
-  setR1={setR1}
-  setR2={setR2}
-  setR3={setR3}
-/>
-              </aside>
-
-              <section className="right-panel">
-                <ConnectionLab
-                experimentCase={experimentCase}
-                  key={`connection-lab-${resetRequest}`}
-                  autoConnectRequest={autoConnectRequest}
-                  aiGuidePlaying={aiGuidePlaying}
-                  checkRequest={checkRequest}
-                  onCheckConnections={handleCheckConnections}
-                  powerOn={powerOn}
+                  locked={powerOn}
+                  minReadings={MIN_OBSERVATION_READINGS}
+                  observations={observations}
+                  onGenerateReport={handleGenerateReport}
+                  readingCount={readingCount}
+                  reportGenerated={reportGenerated}
                   r1={r1}
                   r2={r2}
                   r3={r3}
                   rl={rl}
+                  setR1={setR1}
+                  setR2={setR2}
+                  setR3={setR3}
+                  setRl={setRl}
+                />
+              </aside>
+
+              <section className="right-panel">
+                <ConnectionLab
+                  autoConnectRequest={autoConnectRequest}
+                  case1ConnectionsRemoved={case1ConnectionsRemoved}
+                  case2ConnectionsRemoved={case2ConnectionsRemoved}
+                  checkRequest={checkRequest}
+                  experimentCase={experimentCase}
+                  highlightedTerminalIds={highlightedTerminalIds}
+                  key={`connection-lab-${resetRequest}`}
+                  onCheckConnections={handleCheckConnections}
+                  onGuideEvent={notifyGuide}
+                  onTogglePower={handleTogglePower}
+                  powerOn={powerOn}
+                  r1={r1}
+                  r2={r2}
+                  r3={r3}
                   readings={readings}
                   resetRequest={resetRequest}
+                  resistancesConfigured={resistancesConfigured}
+                  rl={rl}
                   scale={scale}
-                  onTogglePower={handleTogglePower}
+                  setCase1ConnectionsRemoved={setCase1ConnectionsRemoved}
+                  setCase2ConnectionsRemoved={setCase2ConnectionsRemoved}
+                  setShowMultimeter={setShowMultimeter}
+                  setShowRth={setShowRth}
                   setVoltage={handleVoltageChange}
+                  showMultimeter={showMultimeter}
+                  showRth={showRth}
                   voltage={voltage}
                   voltageLocked={voltageLocked}
-                  resistancesConfigured={resistancesConfigured}
-                  showRth={showRth}
-                  showMultimeter={showMultimeter}
-                  playStepById={playStepById}
-                  playStepsById={playStepsById}
-                  case1ConnectionsRemoved={case1ConnectionsRemoved}
-                  setCase1ConnectionsRemoved={setCase1ConnectionsRemoved}
-                  case2ConnectionsRemoved={case2ConnectionsRemoved}
-                  setCase2ConnectionsRemoved={setCase2ConnectionsRemoved}
-                  setShowRth={setShowRth}
-                  setShowMultimeter={setShowMultimeter}
-                  highlightedTerminalIds={highlightedTerminalIds}
                 />
               </section>
             </section>
+          </main>
 
-
-
-</main>
-<div className="post-simulation-content" ref={postSimulationContentRef}>
-  <CalculationPanel
-    key={calculationDone ? 'calculation-ready' : 'calculation-reset'}
-    calculationDone={calculationDone}
-    calculatedValues={calculatedValues}
-    verificationResult={verificationResult}
-    setUserCalculatedIL={setUserCalculatedIL}
-    setVerificationResult={setVerificationResult}
-    playStepById={playStepById}
-    aiGuidePlaying={aiGuidePlaying}
-  />
-  <footer className="site-footer">
-    © 2026 Virtual Labs, IIT Roorkee
-  </footer>
-</div>
+          <div className="post-simulation-content" ref={postSimulationContentRef}>
+            <CalculationPanel
+              calculatedValues={calculatedValues}
+              calculationDone={calculationDone}
+              key={calculationDone ? 'calculation-ready' : 'calculation-reset'}
+              onGuideEvent={notifyGuide}
+              setUserCalculatedIL={setUserCalculatedIL}
+              setVerificationResult={setVerificationResult}
+              verificationResult={verificationResult}
+            />
+            <footer className="site-footer">
+              © 2026 Virtual Labs, IIT Roorkee
+            </footer>
+          </div>
         </div>
       </div>
     </div>

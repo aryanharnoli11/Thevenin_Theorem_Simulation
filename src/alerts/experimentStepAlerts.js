@@ -135,7 +135,6 @@ export const EXPERIMENT_ALERTS = {
   },
   checkingConnections: {
     description: 'The lab console is validating each wire path.',
-    duration: 2200,
     icon: '🎛️',
     stepNumber: 2,
     target: '#check-button',
@@ -239,7 +238,6 @@ connectionsVerifiedCase3: {
 },
   addingReading: {
     description: 'The measured value is being added to the observation table.',
-    duration: 1800,
     icon: '📊',
     stepNumber: 6,
     target: '#observation-table-panel',
@@ -320,7 +318,6 @@ verificationFailed: {
 },
   preparingReport: {
     description: 'The print view is being prepared from the current observations.',
-    duration: 2000,
     icon: '📊',
     stepNumber: 10,
     target: '#print-button',
@@ -340,7 +337,6 @@ printLayoutGenerated: {
 tingSetup: {
     description:
 'Confirm reset before all readings and connections are cleared.',
-    duration: 1800,
     icon: '🎛️',
     stepNumber: 11,
     target: '#reset-button',

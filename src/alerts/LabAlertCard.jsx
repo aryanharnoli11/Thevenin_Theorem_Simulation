@@ -25,11 +25,9 @@ const LabAlertCard = ({ alert, onDismiss }) => {
     canGoPrevious,
     confirmLabel = 'OK',
     description,
-    duration,
     icon,
     id,
     onConfirm,
-    onNarration,
     onNext,
     onPrevious,
     placement,
@@ -41,38 +39,22 @@ const LabAlertCard = ({ alert, onDismiss }) => {
   const audioSource = alert.audio ?? alert.audioSource
 
 
-const waitsForAudio =
-  !requiresConfirmation &&
-  isConfiguredAudioSource(audioSource)
-
-const [audioPlaybackComplete, setAudioPlaybackComplete] =
-  useState(!waitsForAudio)
-
-const hasProgressTimer =
-  !requiresConfirmation &&
-  Number.isFinite(duration) &&
-  duration > 0
-
-const timerDuration = duration
-
-const showProgressTimer =
-  hasProgressTimer &&
-  (!waitsForAudio || audioPlaybackComplete)
+  const waitsForAudio = (
+    !requiresConfirmation
+    && isConfiguredAudioSource(audioSource)
+  )
 
   const titleId = `lab-alert-title-${id}`
   const descriptionId = `lab-alert-description-${id}`
   const role = type === 'error' || type === 'warning' ? 'alert' : 'status'
-  const showNarration = Boolean(alert.audioNarration || alert.narration || onNarration)
   const showTutorialControls = Boolean(tutorialMode || onNext || onPrevious)
 
   const dismiss = useCallback((reason = 'dismiss', callClose = true) => {
     if (isClosing) {
       return
     }
-    dispatchLabAlertEvent('lab-alert:sound-stop', {
-  id,
-  reason,
-})
+    dispatchLabAlertEvent('lab-alert:sound-stop', { id, reason })
+    alert.onDismiss?.(reason, alert)
     setIsClosing(true)
 
     dismissTimerRef.current = window.setTimeout(() => {
@@ -105,8 +87,11 @@ useEffect(() => {
   if (!waitsForAudio) return
 
 const handleEnded = (event) => {
-  if (event.detail?.id === id) {
-    setAudioPlaybackComplete(true)
+  if (
+    event.detail?.id === id
+    && event.detail?.reason === 'ended'
+  ) {
+    dismiss('audio-ended')
   }
 }
 
@@ -120,31 +105,7 @@ const handleEnded = (event) => {
       'lab-alert:sound-ended',
       handleEnded
     )
-}, [id, waitsForAudio])
-
-
- useEffect(() => {
-
-  if (
-    !hasProgressTimer ||
-    (waitsForAudio && !audioPlaybackComplete)
-  ) {
-    return
-  }
-
-  const timer = window.setTimeout(() => {
-    dismiss('timeout')
-  }, timerDuration)
-
-  return () => window.clearTimeout(timer)
-
-}, [
-  audioPlaybackComplete,
-  dismiss,
-  hasProgressTimer,
-  timerDuration,
-  waitsForAudio,
-])
+}, [dismiss, id, waitsForAudio])
   useEffect(() => () => {
     if (dismissTimerRef.current) {
       window.clearTimeout(dismissTimerRef.current)
@@ -160,16 +121,6 @@ const handleEnded = (event) => {
     dismiss('ok')
   }
 
-  const handleNarration = () => {
-    onNarration?.(alert)
-    dispatchLabAlertEvent('lab-alert:narration', {
-      id,
-      narration: alert.narration ?? `${title}. ${description ?? ''}`.trim(),
-      title,
-      type,
-    })
-  }
-
   return (
     <article
       aria-describedby={description ? descriptionId : undefined}
@@ -177,9 +128,6 @@ const handleEnded = (event) => {
       className={`lab-alert-card lab-alert-card--${type} ${isClosing ? 'lab-alert-card--closing' : ''}`}
       data-placement={placement}
       role={role}
-      style={{
- '--alert-duration': `${timerDuration ?? 0}ms`
-}}
     >
       <div className="lab-alert-card__glow" aria-hidden="true" />
 
@@ -195,16 +143,6 @@ const handleEnded = (event) => {
         </div>
 
         <div className="lab-alert-card__tools">
-          {showNarration ? (
-            <button
-              aria-label="Play alert narration"
-              className="lab-alert-card__icon-button"
-              onClick={handleNarration}
-              type="button"
-            >
-              🔊
-            </button>
-          ) : null}
           <button
             aria-label="Close alert"
             className="lab-alert-card__icon-button"
@@ -246,13 +184,6 @@ const handleEnded = (event) => {
           {requiresConfirmation ? confirmLabel : 'OK'}
         </button>
       </div>
-
-      {showProgressTimer ? (
-        <div className="lab-alert-card__timer" aria-hidden="true">
-          <span />
-        </div>
-      ) : null}
-
     </article>
   )
 }

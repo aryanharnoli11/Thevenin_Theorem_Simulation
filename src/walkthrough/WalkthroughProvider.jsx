@@ -69,6 +69,7 @@ const WalkthroughProvider = ({
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isPositioningTarget, setIsPositioningTarget] = useState(false)
   const [targetRect, setTargetRect] = useState(null)
+  const [completionCount, setCompletionCount] = useState(0)
 
   const totalSteps = walkthroughConfig.steps.length
   const activeStep = isOpen ? walkthroughConfig.steps[currentStepIndex] : null
@@ -116,6 +117,11 @@ const WalkthroughProvider = ({
     setIsPositioningTarget(false)
     setTargetRect(null)
   }, [])
+
+  const complete = useCallback(() => {
+    setCompletionCount((current) => current + 1)
+    close()
+  }, [close])
 
   const next = useCallback(() => {
     moveToStep(currentStepIndex + 1)
@@ -369,6 +375,8 @@ const WalkthroughProvider = ({
     canGoNext,
     canGoPrevious,
     close,
+    complete,
+    completionCount,
     config: walkthroughConfig,
     currentStep,
     currentStepIndex,
@@ -388,6 +396,8 @@ const WalkthroughProvider = ({
     canGoNext,
     canGoPrevious,
     close,
+    complete,
+    completionCount,
     currentStep,
     currentStepIndex,
     goToStep,

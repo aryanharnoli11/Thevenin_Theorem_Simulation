@@ -2,7 +2,11 @@ import { motion } from 'framer-motion'
 
 import { useWalkthrough } from '../useWalkthrough.js'
 
-const WalkthroughStartButton = ({ highlighted = false, variant = 'floating' }) => {
+const WalkthroughStartButton = ({
+  disabled = false,
+  highlighted = false,
+  variant = 'floating',
+}) => {
   const { experimentName, isOpen, start, totalSteps } = useWalkthrough()
   const isSideTab = variant === 'side-tab'
 
@@ -17,6 +21,7 @@ const WalkthroughStartButton = ({ highlighted = false, variant = 'floating' }) =
       id="walkthrough-start-button"
       initial={isSideTab ? { opacity: 0, x: -16 } : { opacity: 0, y: 16 }}
       animate={isSideTab ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
+      disabled={disabled}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => start()}

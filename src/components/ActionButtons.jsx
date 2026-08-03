@@ -179,7 +179,9 @@ const ActionButtons = ({
             : {
                 'aria-pressed': handlerName === 'onAiGuide' ? isActive : undefined,
                 onClick: handler,
-                title: handlerName === 'onAiGuide' && isActive ? 'Click to stop narration' : undefined,
+                title: handlerName === 'onAiGuide' && isActive
+                  ? 'Tap to Listen'
+                  : undefined,
               }
 
           return (
