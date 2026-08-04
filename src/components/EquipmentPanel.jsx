@@ -4,19 +4,37 @@ import Voltmeter from './Voltmeter.jsx'
 
 const EquipmentPanel = ({
   connectedTerminalIds = [],
+  experimentCase,
   highlightedTerminalIds = [],
+  observationIl = null,
   observationVth = null,
   powerOn,
   readings,
-  experimentCase,
   showMultimeter,
 }) => {
   const voltmeterConnected = ['1-endpoint', '2-endpoint'].every((terminalId) => (
     connectedTerminalIds.includes(terminalId)
   ))
+  const ammeterConnected = ['3-endpoint', '4-endpoint'].every((terminalId) => (
+    connectedTerminalIds.includes(terminalId)
+  ))
+  const hasObservationIl = (
+    typeof observationIl === 'number'
+    && Number.isFinite(observationIl)
+  )
   const hasObservationVth = (
     typeof observationVth === 'number'
     && Number.isFinite(observationVth)
+  )
+  const voltmeterValue = (
+    powerOn && experimentCase === 2
+      ? readings.vth
+      : (hasObservationVth ? observationVth : 0)
+  )
+  const ammeterValue = (
+    powerOn && experimentCase === 3
+      ? readings.il
+      : (hasObservationIl ? observationIl : 0)
   )
 
   return (
@@ -25,18 +43,13 @@ const EquipmentPanel = ({
 <Voltmeter
   connectedTerminalIds={connectedTerminalIds}
   highlightedTerminalIds={highlightedTerminalIds}
-  value={voltmeterConnected && hasObservationVth ? observationVth : 0}
+  value={voltmeterConnected ? voltmeterValue : 0}
 />
 <Ammeter
   connectedTerminalIds={connectedTerminalIds}
   highlightedTerminalIds={highlightedTerminalIds}
   label="A1"
-  powerOn={powerOn}
-  value={
-    experimentCase === 3
-      ? readings.il
-      : 0
-  }
+  value={ammeterConnected ? ammeterValue : 0}
 />
 
 <DigitalMultimeter

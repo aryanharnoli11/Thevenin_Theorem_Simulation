@@ -26,12 +26,11 @@ const Ammeter = ({
   highlightedTerminalIds = [],
   label,
   value = 0,
-  powerOn,
 }) => {
   const terminals = terminalNumbers[label]
   const numericValue = Number(value)
   const current = Number.isFinite(numericValue) ? numericValue : 0
-  const displayCurrent = powerOn && current > 0 ? current : 0
+  const displayCurrent = current > 0 ? current : 0
   const angle = getMeterNeedleAngle({
     maxValue: METER_MAX_CURRENT,
     value: displayCurrent,
@@ -42,7 +41,6 @@ const Ammeter = ({
       className={`ammeter ammeter--${label}`}
       id={`ammeter-${label.toLowerCase()}`}
       aria-label={`${label} ammeter reading ${displayCurrent.toFixed(4)} amperes`}
-      title={`${displayCurrent.toFixed(4)} A`}
     >
       <img
         src={ammeterImages[label]}

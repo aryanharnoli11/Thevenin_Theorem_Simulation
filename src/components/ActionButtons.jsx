@@ -158,7 +158,7 @@ const ActionButtons = ({
 
   return (
     <SectionCard
-      className={`action-buttons-card h-[176px] ${
+      className={`action-buttons-card h-[200px] ${
         instructionsOpen ? 'action-buttons-card--instructions-open' : ''
       }`}
       icon="buttons"
@@ -179,9 +179,6 @@ const ActionButtons = ({
             : {
                 'aria-pressed': handlerName === 'onAiGuide' ? isActive : undefined,
                 onClick: handler,
-                title: handlerName === 'onAiGuide' && isActive
-                  ? 'Tap to Listen'
-                  : undefined,
               }
 
           return (

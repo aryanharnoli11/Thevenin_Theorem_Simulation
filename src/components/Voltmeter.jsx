@@ -30,7 +30,6 @@ const Voltmeter = ({
       className="ammeter ammeter--voltmeter"
       id="voltmeter"
       aria-label={`Voltmeter reading ${displayVoltage.toFixed(2)} volts`}
-      title={`${displayVoltage.toFixed(2)} V`}
     >
       <img
         src={voltmeterImg}

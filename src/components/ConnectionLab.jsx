@@ -51,6 +51,7 @@ const ConnectionLab = ({
   onCheckConnections,
   onGuideEvent,
   onTogglePower,
+  observationIl,
   observationVth,
   powerOn,
   r1,
@@ -333,6 +334,7 @@ const ConnectionLab = ({
     il: readings.il ?? 0,
     rth: readings.rth ?? 0,
     showRth,
+    vth: readings.vth ?? 0,
   }
 
   useEffect(() => {
@@ -411,11 +413,10 @@ const ConnectionLab = ({
         connectedTerminalIds={connectedTerminalIds}
         experimentCase={experimentCase}
         highlightedTerminalIds={highlightedTerminalIds}
+        observationIl={observationIl}
         observationVth={observationVth}
-        onTogglePower={onTogglePower}
         powerOn={powerOn}
         readings={meterReadings}
-        setVoltage={setVoltage}
         showMultimeter={showMultimeter}
       />
 

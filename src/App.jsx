@@ -491,13 +491,6 @@ const App = () => {
 
   const handleTogglePower = () => {
     if (experimentCase === 1) {
-      void notifyGuide({
-        description: 'Power supply is not required during Case 1.',
-        target: '#power-toggle-button',
-        title: 'Power Supply Not Required',
-        type: 'POWER_REJECTED',
-      })
-      setStatus('Power supply is not required during Case 1.')
       return
     }
 
@@ -681,6 +674,7 @@ const App = () => {
                   onCheckConnections={handleCheckConnections}
                   onGuideEvent={notifyGuide}
                   onTogglePower={handleTogglePower}
+                  observationIl={observations[0]?.il ?? null}
                   observationVth={observations[0]?.vth ?? null}
                   powerOn={powerOn}
                   r1={r1}
