@@ -14,11 +14,12 @@ const Voltmeter = ({
   connectedTerminalIds = [],
   highlightedTerminalIds = [],
   value = 0,
-  powerOn,
 }) => {
   const numericValue = Number(value)
-  const voltage = Number.isFinite(numericValue) ? numericValue : 0
-  const displayVoltage = powerOn && voltage > 0 ? voltage : 0
+  const vth = Number.isFinite(numericValue)
+    ? Number(numericValue.toFixed(2))
+    : 0
+  const displayVoltage = vth > 0 ? vth : 0
   const angle = getMeterNeedleAngle({
     maxValue: METER_MAX_VOLTAGE,
     value: displayVoltage,

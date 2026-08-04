@@ -46,13 +46,13 @@
 .connection-lab .jtk-endpoint--positive {
   filter:
     drop-shadow(0 2px 5px rgba(15, 23, 42, 0.16))
-    drop-shadow(0 0 9px rgba(22, 119, 255, 0.32));
+    drop-shadow(0 0 9px rgba(215, 40, 40, 0.32));
 }
 
 .connection-lab .jtk-endpoint--negative {
   filter:
     drop-shadow(0 2px 5px rgba(15, 23, 42, 0.16))
-    drop-shadow(0 0 9px rgba(240, 68, 56, 0.3));
+    drop-shadow(0 0 9px rgba(0, 0, 0, 0.38));
 }
 
 .connection-lab .jtk-endpoint:hover,
@@ -288,35 +288,35 @@
 }
 
 .connection-terminal[data-polarity="plus"] {
-  --jtk-endpoint-fill: #1677ff;
-  --jtk-endpoint-outline-stroke: #eef7ff;
-  --jtk-endpoint-stroke: #0d4ea6;
-  --jtk-endpoint-hover-fill: #4b96ff;
-  --jtk-endpoint-hover-stroke: #0b3f86;
-  --terminal-accent: #1677ff;
-  --terminal-accent-rgb: 22, 119, 255;
+  --jtk-endpoint-fill: #e33024;
+  --jtk-endpoint-outline-stroke: #fff8f6;
+  --jtk-endpoint-stroke: #8f140e;
+  --jtk-endpoint-hover-fill: #ff4a3d;
+  --jtk-endpoint-hover-stroke: #81130f;
+  --terminal-accent: #d72828;
+  --terminal-accent-rgb: 215, 40, 40;
   --terminal-symbol: "+";
 }
 
 .connection-terminal[data-polarity="plus"] + .terminal-number-label {
-  --endpoint-accent: #1677ff;
-  --endpoint-accent-rgb: 22, 119, 255;
+  --endpoint-accent: #d72828;
+  --endpoint-accent-rgb: 215, 40, 40;
 }
 
 .connection-terminal[data-polarity="minus"] {
-  --jtk-endpoint-fill: #f04438;
-  --jtk-endpoint-outline-stroke: #fff3f0;
-  --jtk-endpoint-stroke: #a91f18;
-  --jtk-endpoint-hover-fill: #ff665d;
-  --jtk-endpoint-hover-stroke: #871b16;
-  --terminal-accent: #f04438;
-  --terminal-accent-rgb: 240, 68, 56;
+  --jtk-endpoint-fill: #151515;
+  --jtk-endpoint-outline-stroke: #f5f5f5;
+  --jtk-endpoint-stroke: #000000;
+  --jtk-endpoint-hover-fill: #303030;
+  --jtk-endpoint-hover-stroke: #000000;
+  --terminal-accent: #151515;
+  --terminal-accent-rgb: 21, 21, 21;
   --terminal-symbol: "-";
 }
 
 .connection-terminal[data-polarity="minus"] + .terminal-number-label {
-  --endpoint-accent: #f04438;
-  --endpoint-accent-rgb: 240, 68, 56;
+  --endpoint-accent: #151515;
+  --endpoint-accent-rgb: 21, 21, 21;
 }
 
 .connection-terminal.jtk-connected + .terminal-number-label {
@@ -368,7 +368,7 @@
 
 .connection-terminal--endpoint-3 {
   --terminal-base-top: 227px;
-  --terminal-base-left: 68px;
+  --terminal-base-left: 67px;
 }
 
 .connection-lab .jtk-endpoint--terminal-4,
@@ -379,7 +379,7 @@
 
 .connection-terminal--endpoint-4 {
   --terminal-base-top: 227px;
-  --terminal-base-left: 177px;
+  --terminal-base-left: 176px;
 }
 
 .connection-lab .jtk-endpoint--terminal-5,
@@ -389,7 +389,7 @@
 }
 
 .connection-terminal--endpoint-5 {
-  --terminal-base-top: 209px;
+  --terminal-base-top: 210px;
   --terminal-base-left: 43px;
 }
 
@@ -400,7 +400,7 @@
 }
 
 .connection-terminal--endpoint-6 {
-  --terminal-base-top: 209px;
+  --terminal-base-top: 210px;
   --terminal-base-left: 155px;
 }
 
@@ -489,26 +489,26 @@
   --terminal-base-top: 340px;
   --terminal-base-left: 470px;
 }
-/* Keep the invisible jsPlumb hit targets in the same modern polarity palette. */
+/* Keep the invisible jsPlumb hit targets in the same red/black terminal palette. */
 .connection-terminal[data-polarity="plus"] {
-  --jtk-endpoint-fill: #1677ff;
-  --jtk-endpoint-outline-stroke: #eef7ff;
-  --jtk-endpoint-stroke: #0d4ea6;
-  --jtk-endpoint-hover-fill: #4b96ff;
-  --jtk-endpoint-hover-stroke: #0b3f86;
+  --jtk-endpoint-fill: #e33024;
+  --jtk-endpoint-outline-stroke: #fff8f6;
+  --jtk-endpoint-stroke: #8f140e;
+  --jtk-endpoint-hover-fill: #ff4a3d;
+  --jtk-endpoint-hover-stroke: #81130f;
 }
 
 .connection-terminal[data-polarity="minus"] {
-  --jtk-endpoint-fill: #f04438;
-  --jtk-endpoint-outline-stroke: #fff3f0;
-  --jtk-endpoint-stroke: #a91f18;
-  --jtk-endpoint-hover-fill: #ff665d;
-  --jtk-endpoint-hover-stroke: #871b16;
+  --jtk-endpoint-fill: #151515;
+  --jtk-endpoint-outline-stroke: #f5f5f5;
+  --jtk-endpoint-stroke: #000000;
+  --jtk-endpoint-hover-fill: #303030;
+  --jtk-endpoint-hover-stroke: #000000;
 }
 
 /*
-  Permanent terminal colors, matched to the blue/red socket reference.
-  Terminal 12 is intentionally blue and terminal 13 intentionally red.
+  Permanent terminal colors, converted from the blue/red reference to red/black.
+  Terminal 12 is red and terminal 13 is black so their wires match their sockets.
 */
 :is(
   .connection-terminal--endpoint-1,
@@ -518,27 +518,6 @@
   .connection-terminal--endpoint-9,
   .connection-terminal--endpoint-11,
   .connection-terminal--endpoint-12
-) {
-  --terminal-neutral: #126bd6;
-  --terminal-neutral-rgb: 18, 107, 214;
-  --terminal-accent: #126bd6;
-  --terminal-accent-rgb: 18, 107, 214;
-  border-color: #074790;
-  background: linear-gradient(145deg, #55a6ff 0%, #126bd6 48%, #06428b 100%);
-  box-shadow:
-    0 2px 5px rgba(5, 47, 103, 0.42),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.58),
-    inset -2px -2px 4px rgba(3, 34, 79, 0.42);
-}
-
-:is(
-  .connection-terminal--endpoint-2,
-  .connection-terminal--endpoint-4,
-  .connection-terminal--endpoint-6,
-  .connection-terminal--endpoint-8,
-  .connection-terminal--endpoint-10,
-  .connection-terminal--endpoint-13,
-  .connection-terminal--endpoint-14
 ) {
   --terminal-neutral: #d72828;
   --terminal-neutral-rgb: 215, 40, 40;
@@ -550,6 +529,27 @@
     0 2px 5px rgba(92, 8, 8, 0.42),
     inset 1px 1px 2px rgba(255, 255, 255, 0.58),
     inset -2px -2px 4px rgba(84, 5, 5, 0.42);
+}
+
+:is(
+  .connection-terminal--endpoint-2,
+  .connection-terminal--endpoint-4,
+  .connection-terminal--endpoint-6,
+  .connection-terminal--endpoint-8,
+  .connection-terminal--endpoint-10,
+  .connection-terminal--endpoint-13,
+  .connection-terminal--endpoint-14
+) {
+  --terminal-neutral: #151515;
+  --terminal-neutral-rgb: 21, 21, 21;
+  --terminal-accent: #151515;
+  --terminal-accent-rgb: 21, 21, 21;
+  border-color: #000000;
+  background: linear-gradient(145deg, #5a5a5a 0%, #181818 48%, #000000 100%);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.52),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.58),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.58);
 }
 
 /* Adjust each terminal number label here. */
@@ -574,13 +574,13 @@
 }
 
 .terminal-number-label--endpoint-5 {
-  top: 237px;
+  top: 240px;
   left: 53px;
 }
 
 .terminal-number-label--endpoint-6 {
-  top: 237px;
-  left: 148px;
+  top: 240px;
+  left: 150px;
 }
 
 .terminal-number-label--endpoint-7 {
@@ -603,23 +603,23 @@
   left: 10px;
 }
 .terminal-number-label--endpoint-11 {
-  top: 67px;
-  left: 420px;
+  top: 66px;
+  left: 418px;
 }
 
 .terminal-number-label--endpoint-12 {
-  top: 67px;
-  left: 480px;
+  top: 66px;
+  left: 473px;
 }
 
 .terminal-number-label--endpoint-13 {
-  top: 400px;
-  left: 420px;
+  top: 380px;
+  left: 415px;
 }
 
 .terminal-number-label--endpoint-14 {
-  top: 400px;
-  left: 477px;
+  top: 380px;
+  left: 474px;
 }
 
 .terminal-label {

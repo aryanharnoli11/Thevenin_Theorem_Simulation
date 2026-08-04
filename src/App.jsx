@@ -681,6 +681,7 @@ const App = () => {
                   onCheckConnections={handleCheckConnections}
                   onGuideEvent={notifyGuide}
                   onTogglePower={handleTogglePower}
+                  observationVth={observations[0]?.vth ?? null}
                   powerOn={powerOn}
                   r1={r1}
                   r2={r2}

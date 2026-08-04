@@ -5,24 +5,27 @@ import Voltmeter from './Voltmeter.jsx'
 const EquipmentPanel = ({
   connectedTerminalIds = [],
   highlightedTerminalIds = [],
+  observationVth = null,
   powerOn,
   readings,
   experimentCase,
   showMultimeter,
-  voltage = 0,
-}) => (
-  
-  <section className="equipment-panel" id="equipment-panel">
+}) => {
+  const voltmeterConnected = ['1-endpoint', '2-endpoint'].every((terminalId) => (
+    connectedTerminalIds.includes(terminalId)
+  ))
+  const hasObservationVth = (
+    typeof observationVth === 'number'
+    && Number.isFinite(observationVth)
+  )
+
+  return (
+    <section className="equipment-panel" id="equipment-panel">
 
 <Voltmeter
   connectedTerminalIds={connectedTerminalIds}
   highlightedTerminalIds={highlightedTerminalIds}
-  powerOn={powerOn}
-  value={
-    experimentCase === 2
-      ? voltage
-      : 0
-  }
+  value={voltmeterConnected && hasObservationVth ? observationVth : 0}
 />
 <Ammeter
   connectedTerminalIds={connectedTerminalIds}
@@ -42,8 +45,9 @@ const EquipmentPanel = ({
   value={readings.rth}
   showValue={showMultimeter}
 />
-  </section>
-)
+    </section>
+  )
+}
 
 
 export default EquipmentPanel

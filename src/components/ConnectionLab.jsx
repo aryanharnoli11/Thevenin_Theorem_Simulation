@@ -51,6 +51,7 @@ const ConnectionLab = ({
   onCheckConnections,
   onGuideEvent,
   onTogglePower,
+  observationVth,
   powerOn,
   r1,
   r2,
@@ -410,12 +411,12 @@ const ConnectionLab = ({
         connectedTerminalIds={connectedTerminalIds}
         experimentCase={experimentCase}
         highlightedTerminalIds={highlightedTerminalIds}
+        observationVth={observationVth}
         onTogglePower={onTogglePower}
         powerOn={powerOn}
         readings={meterReadings}
         setVoltage={setVoltage}
         showMultimeter={showMultimeter}
-        voltage={voltage}
       />
 
       <div className="circuit-workspace">

@@ -24,12 +24,12 @@ const terminalLabels = [
   {
     id: '12-endpoint',
     label: '12',
-    polarity: 'minus',
+    polarity: 'plus',
   },
   {
     id: '13-endpoint',
     label: '13',
-    polarity: 'plus',
+    polarity: 'minus',
   },
   {
     id: '14-endpoint',

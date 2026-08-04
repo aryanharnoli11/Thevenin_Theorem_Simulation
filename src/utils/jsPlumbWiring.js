@@ -5,12 +5,12 @@ export const NEGATIVE_TERMINALS = ['2-endpoint', '4-endpoint', '6-endpoint', '8-
 export const CIRCUIT_POSITIVE_TERMINALS = [
   '9-endpoint',
   '11-endpoint',
-  '13-endpoint',
+  '12-endpoint',
 ]
 
 export const CIRCUIT_NEGATIVE_TERMINALS = [
   '10-endpoint',
-  '12-endpoint',
+  '13-endpoint',
   '14-endpoint',
 ]
 
@@ -65,34 +65,34 @@ const isNegativeTerminal = (terminalId) => (
 
 const terminalPaintStyles = {
   positive: {
-    fill: '#0969e8',
-    outlineStroke: '#f8fbff',
-    outlineWidth: 2,
-    stroke: '#062b77',
-    strokeWidth: 1.4,
-  },
-  negative: {
     fill: '#e33024',
     outlineStroke: '#fff8f6',
     outlineWidth: 2,
     stroke: '#8f140e',
     strokeWidth: 1.4,
   },
+  negative: {
+    fill: '#151515',
+    outlineStroke: '#f5f5f5',
+    outlineWidth: 2,
+    stroke: '#000000',
+    strokeWidth: 1.4,
+  },
 }
 
 const terminalHoverPaintStyles = {
   positive: {
-    fill: '#2a7cff',
-    outlineStroke: '#ffffff',
-    outlineWidth: 2.4,
-    stroke: '#082767',
-    strokeWidth: 1.6,
-  },
-  negative: {
     fill: '#ff4a3d',
     outlineStroke: '#ffffff',
     outlineWidth: 2.4,
     stroke: '#81130f',
+    strokeWidth: 1.6,
+  },
+  negative: {
+    fill: '#303030',
+    outlineStroke: '#ffffff',
+    outlineWidth: 2.4,
+    stroke: '#000000',
     strokeWidth: 1.6,
   },
 }
@@ -156,30 +156,30 @@ const getEndpointCssClass = (terminalId, type) => {
 
 export const wirePaintStyles = {
   positive: {
-    outlineStroke: '#07306e',
-    outlineWidth: 1.15,
-    stroke: '#1f73e6',
-    strokeWidth: 4.6,
-  },
-  negative: {
     outlineStroke: '#771914',
     outlineWidth: 1.15,
     stroke: '#dd342d',
+    strokeWidth: 4.6,
+  },
+  negative: {
+    outlineStroke: '#000000',
+    outlineWidth: 1.15,
+    stroke: '#111111',
     strokeWidth: 4.6,
   },
 }
 
 export const wireHoverPaintStyles = {
   positive: {
-    outlineStroke: '#052357',
-    outlineWidth: 1.35,
-    stroke: '#3a8aff',
-    strokeWidth: 5,
-  },
-  negative: {
     outlineStroke: '#5d110d',
     outlineWidth: 1.35,
     stroke: '#f04a42',
+    strokeWidth: 5,
+  },
+  negative: {
+    outlineStroke: '#000000',
+    outlineWidth: 1.35,
+    stroke: '#292929',
     strokeWidth: 5,
   },
 }
