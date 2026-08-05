@@ -12,6 +12,7 @@ import CalculationPanel from './components/CalculationPanel.jsx'
 import { useWalkthrough } from './walkthrough/useWalkthrough.js'
 import { calculateReadings } from './utils/circuitMath.js'
 import { generateTheveninReport } from './utils/theveninReportGenerator.js'
+import { RESISTANCE_SLIDER_CONFIG } from './utils/resistance.js'
 
 const BASE_WIDTH = 1440
 const DEFAULT_CONTENT_HEIGHT = 1800
@@ -49,10 +50,16 @@ const App = () => {
   const [contentHeight, setContentHeight] = useState(DEFAULT_CONTENT_HEIGHT)
   const postSimulationContentRef = useRef(null)
   const walkthroughCompletionRef = useRef(0)
-  const [r1, setR1] = useState(0.1)
-  const [r2, setR2] = useState(0.1)
-  const [r3, setR3] = useState(0.1)
-  const [rl, setRl] = useState(100)
+  const [r1, setR1] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
+  const [r2, setR2] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
+  const [r3, setR3] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
+  const [rl, setRl] = useState(RESISTANCE_SLIDER_CONFIG.load.initial)
+  const [resistanceSelections, setResistanceSelections] = useState({
+    r1: false,
+    r2: false,
+    r3: false,
+    rl: false,
+  })
   const [voltage, setVoltage] = useState(1)
   const [powerOn, setPowerOn] = useState(false)
   const [voltageLocked, setVoltageLocked] = useState(false)
@@ -96,12 +103,22 @@ const App = () => {
     showStepAlert,
   })
 
-  const resistancesConfigured = (
-    Number(r1) !== 0.1
-    && Number(r2) !== 0.1
-    && Number(r3) !== 0.1
-    && Number(rl) !== 100
-  )
+  const resistancesConfigured = Object.values(resistanceSelections).every(Boolean)
+
+  const handleResistanceChange = (resistance, value) => {
+    const setters = {
+      r1: setR1,
+      r2: setR2,
+      r3: setR3,
+      rl: setRl,
+    }
+
+    setters[resistance](value)
+    setResistanceSelections((current) => ({
+      ...current,
+      [resistance]: true,
+    }))
+  }
 
   useEffect(() => {
     const handleResize = () => setScale(getScale())
@@ -166,15 +183,10 @@ const App = () => {
   useEffect(() => {
     void notifyGuide({
       configured: resistancesConfigured,
-      selections: {
-        r1: Number(r1) !== 0.1,
-        r2: Number(r2) !== 0.1,
-        r3: Number(r3) !== 0.1,
-        rl: Number(rl) !== 100,
-      },
+      selections: resistanceSelections,
       type: 'RESISTANCE_CONFIGURATION',
     })
-  }, [notifyGuide, r1, r2, r3, resistancesConfigured, rl])
+  }, [notifyGuide, resistanceSelections, resistancesConfigured])
 
   const readings = useMemo(
     () => calculateReadings({
@@ -352,10 +364,16 @@ const App = () => {
     setPowerOn(false)
     setVoltage(1)
     setVoltageLocked(false)
-    setR1(0.1)
-    setR2(0.1)
-    setR3(0.1)
-    setRl(100)
+    setR1(RESISTANCE_SLIDER_CONFIG.network.initial)
+    setR2(RESISTANCE_SLIDER_CONFIG.network.initial)
+    setR3(RESISTANCE_SLIDER_CONFIG.network.initial)
+    setRl(RESISTANCE_SLIDER_CONFIG.load.initial)
+    setResistanceSelections({
+      r1: false,
+      r2: false,
+      r3: false,
+      rl: false,
+    })
     setObservations([])
     setCalculationDone(false)
     setCalculatedValues(null)
@@ -549,7 +567,7 @@ const App = () => {
       voltageSource: voltage,
       vth: observations[0]?.vth ?? measuredVth,
       rth: observations[0]?.rth ?? measuredRth,
-      observedIL: measuredIl,
+      observedIL: observations[0]?.il ?? measuredIl,
     })
     setCalculationDone(true)
     void notifyGuide({ type: 'CALCULATE' })
@@ -655,10 +673,10 @@ const App = () => {
                   r2={r2}
                   r3={r3}
                   rl={rl}
-                  setR1={setR1}
-                  setR2={setR2}
-                  setR3={setR3}
-                  setRl={setRl}
+                  setR1={(value) => handleResistanceChange('r1', value)}
+                  setR2={(value) => handleResistanceChange('r2', value)}
+                  setR3={(value) => handleResistanceChange('r3', value)}
+                  setRl={(value) => handleResistanceChange('rl', value)}
                 />
               </aside>
 

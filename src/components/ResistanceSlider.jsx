@@ -1,26 +1,27 @@
 import { useState } from 'react'
+import {
+  formatKilohms,
+  RESISTANCE_SLIDER_CONFIG,
+} from '../utils/resistance.js'
 
 const ResistanceSlider = ({ disabled = false, label, onChange, value }) => {
   const isRL = label === 'RL'
-
-  const MIN_RESISTANCE = isRL ? 100 : 0.1
-  const MAX_RESISTANCE = isRL ? 300 : 10
-  const RESISTANCE_STEP = isRL ? 50 : 0.1
+  const config = isRL
+    ? RESISTANCE_SLIDER_CONFIG.load
+    : RESISTANCE_SLIDER_CONFIG.network
 
   const normalizeResistance = (inputValue) => {
     const number = Number(inputValue)
 
     const bounded = Math.min(
       Math.max(
-        Number.isFinite(number) ? number : MIN_RESISTANCE,
-        MIN_RESISTANCE,
+        Number.isFinite(number) ? number : config.min,
+        config.min,
       ),
-      MAX_RESISTANCE,
+      config.max,
     )
 
-    return isRL
-      ? bounded
-      : Number(bounded.toFixed(1))
+    return bounded
   }
 
   const [draftValue, setDraftValue] = useState(value)
@@ -40,7 +41,7 @@ const ResistanceSlider = ({ disabled = false, label, onChange, value }) => {
     <div className={`resistance-slider ${disabled ? 'resistance-slider--locked' : ''}`}>
       <label className="resistance-slider__label" htmlFor={`${label}-slider`}>
         {label.slice(0, 1)}
-        <sub>{label.slice(1)}</sub> (&Omega;)
+        <sub>{label.slice(1)}</sub> (k&Omega;)
       </label>
 
       <div className="resistance-slider__control">
@@ -49,8 +50,8 @@ const ResistanceSlider = ({ disabled = false, label, onChange, value }) => {
           className="resistance-slider__input"
           disabled={disabled}
           id={`${label}-slider`}
-          max={MAX_RESISTANCE}
-          min={MIN_RESISTANCE}
+          max={config.max}
+          min={config.min}
           onBlur={commitValue}
           onChange={(event) => {
             setIsEditing(true)
@@ -59,14 +60,14 @@ const ResistanceSlider = ({ disabled = false, label, onChange, value }) => {
           onKeyUp={commitValue}
           onPointerCancel={commitValue}
           onPointerUp={commitValue}
-          step={RESISTANCE_STEP}
+          step={config.step}
           type="range"
           value={sliderValue}
         />
       </div>
 
       <span className="resistance-slider__value">
-        {isRL ? sliderValue : Number(sliderValue).toFixed(1)}
+        {Number(formatKilohms(sliderValue, isRL ? 1 : 0))}
       </span>
     </div>
   )

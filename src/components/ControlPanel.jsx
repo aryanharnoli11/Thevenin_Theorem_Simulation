@@ -29,44 +29,32 @@ const ControlPanel = ({
       <div className="flex flex-col gap-[18px] px-[26px] pt-[26px]">
 
         <ResistanceSlider
-  disabled={locked}
-  label="RL"
-  onChange={setRl}
-  value={rl}
-  min={100}
-  max={300}
-  step={50}
-/>
+          disabled={locked}
+          label="RL"
+          onChange={setRl}
+          value={rl}
+        />
 
         <ResistanceSlider
-  disabled={locked}
-  label="R1"
-  onChange={setR1}
-  value={r1}
-  min={0.1}
-  max={10}
-  step={0.1}
-/>
+          disabled={locked}
+          label="R1"
+          onChange={setR1}
+          value={r1}
+        />
 
         <ResistanceSlider
-  disabled={locked}
-  label="R2"
-  onChange={setR2}
-  value={r2}
-  min={0.1}
-  max={10}
-  step={0.1}
-/>
+          disabled={locked}
+          label="R2"
+          onChange={setR2}
+          value={r2}
+        />
 
         <ResistanceSlider
-  disabled={locked}
-  label="R3"
-  onChange={setR3}
-  value={r3}
-  min={0.1}
-  max={10}
-  step={0.1}
-/>
+          disabled={locked}
+          label="R3"
+          onChange={setR3}
+          value={r3}
+        />
 
       </div>
     </SectionCard>

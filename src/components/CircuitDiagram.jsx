@@ -5,6 +5,7 @@ import {
   getTerminalNumberHighlightClass,
 } from '../utils/terminalHighlight.js'
 import circuitImage from '../assets/circuit.png'
+import { formatKilohms } from '../utils/resistance.js'
 const terminalLabels = [
   {
     id: '9-endpoint',
@@ -68,14 +69,14 @@ className={`terminal-number-label terminal-number-label--circuit terminal-number
         </Fragment>
       ))}
 
-     <span className="resistor-value left-[89px] top-[170px]">{r1} &Omega;</span>
+     <span className="resistor-value left-[89px] top-[170px]">{formatKilohms(r1, 0)} k&Omega;</span>
 
-<span className="resistor-value left-[282px] top-[220px]">{r2} &Omega;</span>
+<span className="resistor-value left-[282px] top-[220px]">{formatKilohms(r2, 0)} k&Omega;</span>
 
-<span className="resistor-value left-[300px] top-[164px]">{r3} &Omega;</span>
+<span className="resistor-value left-[300px] top-[164px]">{formatKilohms(r3, 0)} k&Omega;</span>
 
 <span className="resistor-value left-[390px] top-[220px]">
-  {rl}&Omega;
+  {formatKilohms(rl, 1)} k&Omega;
 </span>
     </div>
   </section>

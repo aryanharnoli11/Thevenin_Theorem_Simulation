@@ -2364,6 +2364,12 @@ background:
   white-space: nowrap;
 }
 
+#calculation-panel .equation-input-unit {
+  color: #5c4e4b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 #calculation-panel .formula-input {
   box-sizing: border-box;
   width: 126px;

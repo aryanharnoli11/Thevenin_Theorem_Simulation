@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import ElectricalText from './ElectricalText.jsx';
+import { amperesToMilliamperes } from '../utils/current.js';
+import {
+  formatKilohms,
+  kilohmsToOhms,
+} from '../utils/resistance.js';
 const CalculationPanel = ({
   calculationDone,
   calculatedValues,
@@ -28,17 +33,19 @@ const CalculationPanel = ({
     theveninInputs.rth.trim() !== '' &&
     theveninInputs.vth.trim() !== '' &&
     theveninInputs.rl.trim() !== '';
-  const enteredRth = Number(theveninInputs.rth);
+  const enteredRthKilohms = Number(theveninInputs.rth);
   const enteredVth = Number(theveninInputs.vth);
-  const loadResistance = Number(theveninInputs.rl);
+  const loadResistanceKilohms = Number(theveninInputs.rl);
+  const enteredRth = kilohmsToOhms(enteredRthKilohms);
+  const loadResistance = kilohmsToOhms(loadResistanceKilohms);
   const loadCurrentDenominator = enteredRth + loadResistance;
   const inputsAreValid =
     hasTheveninInputs &&
-    Number.isFinite(enteredRth) &&
-    enteredRth >= 0 &&
+    Number.isFinite(enteredRthKilohms) &&
+    enteredRthKilohms >= 0 &&
     Number.isFinite(enteredVth) &&
-    Number.isFinite(loadResistance) &&
-    loadResistance >= 0 &&
+    Number.isFinite(loadResistanceKilohms) &&
+    loadResistanceKilohms >= 0 &&
     loadCurrentDenominator > 0;
   const calculatedLoadCurrent = inputsAreValid
     ? enteredVth / loadCurrentDenominator
@@ -128,33 +135,33 @@ const CalculationPanel = ({
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>1</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r1 !== '' ? Number(r1).toFixed(1) : ''}
+                  {calculationDone && r1 !== '' ? formatKilohms(r1, 0) : ''}
                 </div>
-                <span className="inline-unit">Ω</span>
+                <span className="inline-unit">kΩ</span>
               </div>
               
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>2</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r2 !== '' ? Number(r2).toFixed(1) : ''}
+                  {calculationDone && r2 !== '' ? formatKilohms(r2, 0) : ''}
                 </div>
-                <span className="inline-unit">Ω</span>
+                <span className="inline-unit">kΩ</span>
               </div>
               
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>3</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r3 !== '' ? Number(r3).toFixed(1) : ''}
+                  {calculationDone && r3 !== '' ? formatKilohms(r3, 0) : ''}
                 </div>
-                <span className="inline-unit">Ω</span>
+                <span className="inline-unit">kΩ</span>
               </div>
 
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>L</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && rl !== '' ? Number(rl).toFixed(0) : ''}
+                  {calculationDone && rl !== '' ? formatKilohms(rl, 1) : ''}
                 </div>
-                <span className="inline-unit">Ω</span>
+                <span className="inline-unit">kΩ</span>
               </div>
             </div>
           </div>
@@ -167,7 +174,7 @@ const CalculationPanel = ({
               <div className="inline-input-item">
                 <span className="inline-label long-label">Voltage Source:</span>
                 <div className="inline-display">
-                  {calculationDone && voltageSource !== '' ? Number(voltageSource).toFixed(1) : ''}
+                  {calculationDone && voltageSource !== '' ? Number(voltageSource) : ''}
                 </div>
                 <span className="inline-unit">V</span>
               </div>
@@ -183,11 +190,13 @@ const CalculationPanel = ({
               Observed Load Current (<ElectricalText text="IL" />) =
             </span>
             <output
-              aria-label="Observed load current"
+              aria-label="Observed load current in milliamperes"
               className="observed-current-value"
             >
-              {calculationDone ? Number(observedIL).toFixed(3) : ''}
-              {calculationDone && observedIL !== '' ? ' A' : ''}
+              {calculationDone && observedIL !== ''
+                ? amperesToMilliamperes(observedIL).toFixed(3)
+                : ''}
+              {calculationDone && observedIL !== '' ? ' mA' : ''}
             </output>
           </div>
 
@@ -217,12 +226,13 @@ const CalculationPanel = ({
                     type="number"
                     value={theveninInputs.vth}
                   />
+                  <span className="equation-input-unit">V</span>
                 </label> 
                 <div className="equation-denominator">
                   <label className="equation-term">
                     <ElectricalText text="Rth" />
                     <input
-                      aria-label="Enter Thevenin equivalent resistance"
+                      aria-label="Enter Thevenin equivalent resistance in kilo-ohms"
                       className="formula-input"
                       disabled={!calculationDone}
                       min="0"
@@ -232,12 +242,13 @@ const CalculationPanel = ({
                       type="number"
                       value={theveninInputs.rth}
                     />
+                    <span className="equation-input-unit">kΩ</span>
                   </label>
                   <span aria-hidden="true" className="equation-operator">+</span>
                   <label className="equation-term">
                     <ElectricalText text="RL" />
                     <input
-                      aria-label="Enter load resistance"
+                      aria-label="Enter load resistance in kilo-ohms"
                       className="formula-input"
                       disabled={!calculationDone}
                       min="0"
@@ -247,6 +258,7 @@ const CalculationPanel = ({
                       type="number"
                       value={theveninInputs.rl}
                     />
+                    <span className="equation-input-unit">kΩ</span>
                   </label>
                 </div>
               </div>
@@ -264,7 +276,7 @@ const CalculationPanel = ({
                   type="number"
                   value={calculatedLoadCurrentDisplay}
                 />
-                <span className="equation-unit">A</span>
+                <span className="equation-unit">mA</span>
               </div>
             </div>
           </div>

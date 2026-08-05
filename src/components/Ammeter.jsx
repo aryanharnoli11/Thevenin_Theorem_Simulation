@@ -5,10 +5,11 @@ import {
   getTerminalHighlightClass,
   getTerminalNumberHighlightClass,
 } from '../utils/terminalHighlight.js'
+import { amperesToMilliamperes } from '../utils/current.js'
 import { getMeterNeedleAngle } from '../utils/meterScale.js'
 
-// The 0-5 dial is used on its 0-0.5 A range for this experiment.
-const METER_MAX_CURRENT = 0.5
+// The printed 0-5 dial represents the experiment's 0-5 mA range.
+const METER_MAX_CURRENT_MILLIAMPERES = 5
 
 const ammeterImages = {
   A1: ammeterImg,
@@ -29,18 +30,21 @@ const Ammeter = ({
 }) => {
   const terminals = terminalNumbers[label]
   const numericValue = Number(value)
-  const current = Number.isFinite(numericValue) ? numericValue : 0
-  const displayCurrent = current > 0 ? current : 0
+  const currentAmperes = Number.isFinite(numericValue) ? numericValue : 0
+  const currentMilliamperes = amperesToMilliamperes(currentAmperes)
+  const displayCurrentMilliamperes = currentMilliamperes > 0
+    ? currentMilliamperes
+    : 0
   const angle = getMeterNeedleAngle({
-    maxValue: METER_MAX_CURRENT,
-    value: displayCurrent,
+    maxValue: METER_MAX_CURRENT_MILLIAMPERES,
+    value: displayCurrentMilliamperes,
   })
 
   return (
     <article
       className={`ammeter ammeter--${label}`}
       id={`ammeter-${label.toLowerCase()}`}
-      aria-label={`${label} ammeter reading ${displayCurrent.toFixed(4)} amperes`}
+      aria-label={`${label} ammeter reading ${displayCurrentMilliamperes.toFixed(3)} milliamperes`}
     >
       <img
         src={ammeterImages[label]}

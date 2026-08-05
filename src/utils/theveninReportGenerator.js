@@ -1,3 +1,6 @@
+import { amperesToMilliamperes } from './current.js'
+import { formatKilohms } from './resistance.js'
+
 const escapeHtml = (value) => String(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -50,9 +53,9 @@ export const generateTheveninReport = ({
         <tr>
           <td>${index + 1}</td>
           <td>${row.vth.toFixed(2)}</td>
-          <td>${row.rth.toFixed(2)}</td>
-          <td>${row.rl}</td>
-          <td>${row.il.toFixed(4)}</td>
+          <td>${formatKilohms(row.rth, 2)}</td>
+          <td>${formatKilohms(row.rl, 1)}</td>
+          <td>${amperesToMilliamperes(row.il).toFixed(3)}</td>
         </tr>
       `,
     )
@@ -785,14 +788,14 @@ tr:nth-child(even) {
               <ul class="summary-list">
                 <li>Power Supply: 30V DC</li>
                 <li>AC/DC Voltmeter: 0 - 50 V</li>
-                <li>AC/DC Ammeter: 0 - 5 A</li>
+                <li>AC/DC Ammeter: 0 - 5 mA</li>
                 <li>Digital Multimeter: 30V DC</li>
-                <li>R<sub>L</sub>: 100&Omega; &ndash; 300&Omega;</li>
+                <li>R<sub>L</sub>: 0.5 k&Omega; &ndash; 1.5 k&Omega;</li>
               </ul>
               <ul class="summary-list">
-                <li>R<sub>1</sub>: 0.1&Omega; &ndash; 10&Omega;</li>
-                <li>R<sub>2</sub>: 0.1&Omega; &ndash; 10&Omega;</li>
-                <li>R<sub>3</sub>: 0.1&Omega; &ndash; 10&Omega;</li>
+                <li>R<sub>1</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
+                <li>R<sub>2</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
+                <li>R<sub>3</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
                 <li>Connecting Leads</li>
               </ul>
             </div>
@@ -811,19 +814,19 @@ tr:nth-child(even) {
         <div class="param-grid">
           <div class="param-card">
             <span class="param-label">R<sub>1</sub></span>
-            <span class="param-value">${r1} &Omega;</span>
+            <span class="param-value">${formatKilohms(r1, 0)} k&Omega;</span>
           </div>
           <div class="param-card">
             <span class="param-label">R<sub>2</sub></span>
-            <span class="param-value">${r2} &Omega;</span>
+            <span class="param-value">${formatKilohms(r2, 0)} k&Omega;</span>
           </div>
           <div class="param-card">
             <span class="param-label">R<sub>3</sub></span>
-            <span class="param-value">${r3} &Omega;</span>
+            <span class="param-value">${formatKilohms(r3, 0)} k&Omega;</span>
           </div>
           <div class="param-card">
             <span class="param-label">R<sub>L</sub></span>
-            <span class="param-value">${rl} &Omega;</span>
+            <span class="param-value">${formatKilohms(rl, 1)} k&Omega;</span>
           </div>
           <div class="param-card">
             <span class="param-label">V<sub>TH</sub></span>
@@ -831,7 +834,7 @@ tr:nth-child(even) {
           </div>
           <div class="param-card">
             <span class="param-label">R<sub>TH</sub></span>
-            <span class="param-value">${rth.toFixed(3)} &Omega;</span>
+            <span class="param-value">${formatKilohms(rth, 3)} k&Omega;</span>
           </div>
         </div>
       </div>
@@ -849,9 +852,9 @@ tr:nth-child(even) {
                   <tr>
                     <th>S.No.</th>
                     <th>V<sub>TH</sub> (V)</th>
-                    <th>R<sub>TH</sub> (&Omega;)</th>
-                    <th>R<sub>L</sub> (&Omega;)</th>
-                    <th>I<sub>L</sub> (A)</th>
+                    <th>R<sub>TH</sub> (k&Omega;)</th>
+                    <th>R<sub>L</sub> (k&Omega;)</th>
+                    <th>I<sub>L</sub> (mA)</th>
                   </tr>
                 </thead>
                 <tbody>

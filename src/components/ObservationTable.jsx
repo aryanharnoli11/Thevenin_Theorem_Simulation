@@ -1,4 +1,6 @@
 import SectionCard from './SectionCard.jsx'
+import { amperesToMilliamperes } from '../utils/current.js'
+import { formatKilohms } from '../utils/resistance.js'
 
 const OBSERVATION_ROW_COUNT = 1
 const emptyRows = Array.from({ length: OBSERVATION_ROW_COUNT })
@@ -11,9 +13,9 @@ const ObservationTable = ({ observations }) => (
   <tr>
     <th>S.No</th>
     <th>V<sub>TH</sub> (V)</th>
-    <th>R<sub>TH</sub> (&Omega;)</th>
-    <th>R<sub>L</sub> (&Omega;)</th>
-    <th>I<sub>L</sub> (A)</th>
+    <th>R<sub>TH</sub> (k&Omega;)</th>
+    <th>R<sub>L</sub> (k&Omega;)</th>
+    <th>I<sub>L</sub> (mA)</th>
   </tr>
 </thead>
         <tbody>
@@ -25,11 +27,11 @@ const ObservationTable = ({ observations }) => (
                 <td>{row?.id ?? ''}</td>
                <td>{typeof row?.vth === 'number' ? row.vth.toFixed(2) : ''}</td>
 
-<td>{typeof row?.rth === 'number' ? row.rth.toFixed(2) : ''}</td>
+<td>{typeof row?.rth === 'number' ? formatKilohms(row.rth, 2) : ''}</td>
 
-<td>{row?.rl ?? ''}</td>
+<td>{typeof row?.rl === 'number' ? formatKilohms(row.rl, 1) : ''}</td>
 
-<td>{typeof row?.il === 'number' ? row.il.toFixed(4) : ''}</td>
+<td>{typeof row?.il === 'number' ? amperesToMilliamperes(row.il).toFixed(3) : ''}</td>
               </tr>
             )
           })}
