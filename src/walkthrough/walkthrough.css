@@ -373,3 +373,16 @@
   filter: none !important;
   cursor: not-allowed !important;
 }
+
+
+.walkthrough-popup__description-line {
+  min-height: 1.55em;
+}
+
+.walkthrough-popup__description-line:empty {
+  min-height: 1.55em;
+}
+
+.walkthrough-popup__description strong {
+  font-weight: 800;
+}

@@ -244,10 +244,34 @@ useEffect(() => (
         </div>
       </div>
 
-      <p className="walkthrough-popup__description" id={descriptionId}>
-        <ElectricalText text={activeStep.description} />
-      </p>
+      <div className="walkthrough-popup__description" id={descriptionId}>
+  {String(activeStep.description || '').split('\n').map((line, index) => {
+    const parts = line.split(/(\*\*.*?\*\*)/g)
 
+    return (
+      <div key={index} className="walkthrough-popup__description-line">
+        {parts.map((part, partIndex) => {
+          const match = part.match(/^\*\*(.*?)\*\*$/)
+
+          if (match) {
+            return (
+              <strong key={partIndex}>
+                <ElectricalText text={match[1]} />
+              </strong>
+            )
+          }
+
+          return (
+            <ElectricalText
+              key={partIndex}
+              text={part}
+            />
+          )
+        })}
+      </div>
+    )
+  })}
+</div>
       <div className="walkthrough-popup__progress" aria-hidden="true">
         <span style={{ width: `${progressPercent}%` }} />
       </div>
