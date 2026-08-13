@@ -47,13 +47,14 @@ const CalculationPanel = ({
     Number.isFinite(loadResistanceKilohms) &&
     loadResistanceKilohms >= 0 &&
     loadCurrentDenominator > 0;
-  const calculatedLoadCurrent = inputsAreValid
-    ? enteredVth / loadCurrentDenominator
-    : null;
-  const calculatedLoadCurrentDisplay =
-    calculatedLoadCurrent === null
-      ? ''
-      : calculatedLoadCurrent.toFixed(6);
+ const calculatedLoadCurrent = inputsAreValid
+  ? enteredVth / loadCurrentDenominator
+  : null;
+
+const calculatedLoadCurrentDisplay =
+  calculatedLoadCurrent === null
+    ? ''
+    : amperesToMilliamperes(calculatedLoadCurrent).toFixed(3);
 
   useEffect(() => {
     setUserCalculatedIL(calculatedLoadCurrentDisplay);
