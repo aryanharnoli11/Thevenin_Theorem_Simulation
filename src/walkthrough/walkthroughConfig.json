@@ -128,7 +128,7 @@
     "en": "DC Voltmeter"
   },
   "description": {
-    "en": "This voltmeter is used to measure the Thevenin equivalent voltage (VTH) across the load terminals with the load resistance disconnected. The measured VTH will be used later to calculate the load current."
+    "en": "This voltmeter is used to measure the Thevenin equivalent voltage (VTH) across the load terminals with the load resistance disconnected. The measured VTH will be used later to calculate the load current.\n\nRating: 0 - 50 V "
   },
    "audio": "/walkthrough-audios/DC Voltmeter.wav",
   "placement": "bottom"

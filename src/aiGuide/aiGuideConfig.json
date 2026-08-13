@@ -162,7 +162,7 @@
     },
     {
       "id": 32,
-      "text": "The observed values are displayed in the Calculations Panel. Calculate the load current manually using the rules of the Thevenin Theorem, enter the calculated value in the input field, and click the Verify button to verify the theorem.",
+      "text": "The resistance and source values are displayed in the theoretical verification panel. Calculate the load current manually using the rules of the Thevenin Theorem, enter the calculated values in the input field, and click the Verify button to verify the theorem.",
       "audio": "/audios/After clicking the calculate button.wav"
     },
     {
