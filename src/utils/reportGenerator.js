@@ -1005,7 +1005,7 @@ tr:nth-child(even) {
           <h3>Current versus Voltage Graph</h3>
           <div id="report-graph">${graphSvg}</div>
         </div>
-
+<br />
         <div class="results-card">
           <h3>Conclusion</h3>
           <p style="text-align: justify;">For every recorded voltage level, the total current I<sub>1</sub> is equal to the sum of branch currents I<sub>2</sub> and I<sub>3</sub> within simulation precision. Hence Kirchhoff's Current Law is verified for the given resistive network.</p>

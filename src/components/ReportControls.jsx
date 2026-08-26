@@ -51,11 +51,22 @@ const ReportControls = ({
     {formulasOpen && (
       <aside
         aria-labelledby="formula-panel-title"
+        aria-modal="true"
         className="floating-formula-panel"
+        id="equations-panel"
+        role="dialog"
       >
 
         <div className="floating-formula-panel__header">
-          <h3 id="formula-panel-title">Equations</h3>
+          <h3 id="formula-panel-title">Thevenin Theorem Equations</h3>
+          <button
+            aria-label="Close equations panel"
+            className="floating-formula-panel__close"
+            type="button"
+            onClick={() => setFormulasOpen(false)}
+          >
+            &times;
+          </button>
         </div>
 
         <div className="floating-formula-panel__content">
@@ -108,6 +119,8 @@ const ReportControls = ({
  id="formula-button"
       type="button"
       className="formula-button"
+      aria-controls="equations-panel"
+      aria-expanded={formulasOpen}
       onClick={() => setFormulasOpen((current) => !current)}
     >
       <FormulaIcon />
