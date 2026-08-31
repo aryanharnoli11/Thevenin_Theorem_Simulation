@@ -9,6 +9,7 @@ const PowerSupply = ({
   connectedTerminalIds = [],
   highlightedTerminalIds = [],
   onTogglePower,
+  onVoltageSet,
   powerOn,
   setVoltage,
   voltage,
@@ -17,8 +18,11 @@ const PowerSupply = ({
  const displayedVoltage = powerOn ? `${voltage} V` : ''
 
 const handleVoltageChange = (event) => {
-  
   setVoltage(Number(event.target.value))
+}
+
+const handleVoltageSet = (event) => {
+  onVoltageSet?.(Number(event.currentTarget.value))
 }
 
   return (
@@ -79,6 +83,8 @@ className={`terminal-number-label terminal-number-label--power-minus terminal-nu
   max="15"
   min="1"
   onChange={handleVoltageChange}
+  onKeyUp={handleVoltageSet}
+  onPointerUp={handleVoltageSet}
   step="1"
   type="range"
   value={voltage}

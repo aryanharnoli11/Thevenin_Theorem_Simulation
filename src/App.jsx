@@ -370,7 +370,6 @@ const App = () => {
         },
       ])
       setMeasuredVth(readings.vth)
-      setPowerOn(false)
       setVoltageLocked(true)
       setConnectionsVerified(false)
       setExperimentCase(3)
@@ -395,7 +394,7 @@ const App = () => {
     setReportPrinted(false)
     setStatus(
       completedCase === 2
-        ? 'Case 2 reading added. The power supply switched off automatically; its voltage setting and connections are retained for Case 3.'
+        ? 'Case 2 reading added. Turn OFF the power supply manually, then remove the voltmeter connections.'
         : 'Reading added to the observation table.',
     )
   }
@@ -589,14 +588,16 @@ const App = () => {
     }
 
     setVoltage(nextVoltage)
+  }, [voltageLocked])
 
+  const handleVoltageSet = useCallback((nextVoltage) => {
     if (powerOn && experimentCase === 2) {
       void notifyGuide({
         type: 'VOLTAGE_SET',
         voltage: nextVoltage,
       })
     }
-  }, [experimentCase, notifyGuide, powerOn, voltageLocked])
+  }, [experimentCase, notifyGuide, powerOn])
 
   const handleCalculate = () => {
     setCalculatedValues({
@@ -750,6 +751,7 @@ const App = () => {
                   setVoltage={handleVoltageChange}
                   showMultimeter={showMultimeter}
                   showRth={showRth}
+                  onVoltageSet={handleVoltageSet}
                   voltage={voltage}
                   voltageLocked={voltageLocked}
                 />

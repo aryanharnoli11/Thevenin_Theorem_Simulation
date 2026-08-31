@@ -4,7 +4,51 @@ import { amperesToMilliamperes } from '../utils/current.js';
 import {
   formatKilohms,
   kilohmsToOhms,
+  ohmsToKilohms,
 } from '../utils/resistance.js';
+
+const INPUT_RANGES = {
+  vth: { min: 0, max: 100 },
+  rth: { min: 0, max: 50 },
+  rl: { min: 0, max: 5 },
+};
+
+const INPUT_TOLERANCES = {
+  vth: 0.005,
+  rth: 0.005,
+  rl: 0.05,
+};
+
+const LOAD_CURRENT_TOLERANCE_MILLIAMPERES = 0.01;
+const COMPARISON_EPSILON = 1e-9;
+
+const isWithinRange = (value, range) => (
+  Number.isFinite(value) && value >= range.min && value <= range.max
+);
+
+const approximatelyEquals = (value, expected, tolerance) => (
+  Number.isFinite(expected)
+  && Math.abs(value - expected) <= tolerance + COMPARISON_EPSILON
+);
+
+const clampInputToRange = (value, range) => {
+  if (value === '') return '';
+
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) return '';
+  if (numericValue < range.min) return String(range.min);
+  if (numericValue > range.max) return String(range.max);
+
+  return value;
+};
+
+const preventInvalidNumberKey = (event) => {
+  if (['-', '+', 'e', 'E'].includes(event.key)) {
+    event.preventDefault();
+  }
+};
+
 const CalculationPanel = ({
   calculationDone,
   calculatedValues,
@@ -28,11 +72,17 @@ const CalculationPanel = ({
     vth: '',
     rl: '',
   });
+  const [incorrectInputs, setIncorrectInputs] = useState({
+    rth: false,
+    vth: false,
+    rl: false,
+  });
+  const [calculatedCurrentIncorrect, setCalculatedCurrentIncorrect] = useState(false);
 
-  const hasTheveninInputs =
-    theveninInputs.rth.trim() !== '' &&
-    theveninInputs.vth.trim() !== '' &&
-    theveninInputs.rl.trim() !== '';
+  const missingInputKeys = Object.entries(theveninInputs)
+    .filter(([, value]) => value.trim() === '')
+    .map(([parameter]) => parameter);
+  const hasTheveninInputs = missingInputKeys.length === 0;
   const enteredRthKilohms = Number(theveninInputs.rth);
   const enteredVth = Number(theveninInputs.vth);
   const loadResistanceKilohms = Number(theveninInputs.rl);
@@ -41,11 +91,9 @@ const CalculationPanel = ({
   const loadCurrentDenominator = enteredRth + loadResistance;
   const inputsAreValid =
     hasTheveninInputs &&
-    Number.isFinite(enteredRthKilohms) &&
-    enteredRthKilohms >= 0 &&
-    Number.isFinite(enteredVth) &&
-    Number.isFinite(loadResistanceKilohms) &&
-    loadResistanceKilohms >= 0 &&
+    isWithinRange(enteredVth, INPUT_RANGES.vth) &&
+    isWithinRange(enteredRthKilohms, INPUT_RANGES.rth) &&
+    isWithinRange(loadResistanceKilohms, INPUT_RANGES.rl) &&
     loadCurrentDenominator > 0;
  const calculatedLoadCurrent = inputsAreValid
   ? enteredVth / loadCurrentDenominator
@@ -61,44 +109,75 @@ const calculatedLoadCurrentDisplay =
   }, [calculatedLoadCurrentDisplay, setUserCalculatedIL]);
 
   const handleTheveninInputChange = (parameter, value) => {
+    const nextValue = clampInputToRange(value, INPUT_RANGES[parameter]);
+
     setTheveninInputs((current) => ({
       ...current,
-      [parameter]: value,
+      [parameter]: nextValue,
     }));
+    setIncorrectInputs((current) => ({
+      ...current,
+      [parameter]: false,
+    }));
+    setCalculatedCurrentIncorrect(false);
     setVerificationResult('');
   };
 
   const handleVerify = () => {
     if (!calculationDone) return;
 
-    if (!hasTheveninInputs) {
+    if (missingInputKeys.length > 0) {
+      const onlyOneValueIsMissing = missingInputKeys.length === 1;
+
       onGuideEvent?.({
         alertType: 'warning',
         title: 'Input Required',
-        description:
-          'Please enter the Thevenin equivalent voltage, resistance, and load resistance.',
+        description: onlyOneValueIsMissing
+          ? 'Please enter the required value, then click the “Verify” button to verify the theorem.'
+          : 'Please enter all the values, then click the “Verify” button to verify the theorem.',
+        missingCount: missingInputKeys.length,
         target: '#calculation-panel',
         type: 'CALCULATION_INPUT_REQUIRED',
       });
       return;
     }
 
-    if (!inputsAreValid) {
-      onGuideEvent?.({
-        alertType: 'warning',
-        title: 'Invalid Input',
-        description:
-          'Please enter valid values for the Thevenin equivalent voltage, resistance, and load resistance.',
-        target: '#calculation-panel',
-        type: 'CALCULATION_INPUT_INVALID',
-      });
-      return;
-    }
+    const expectedVth = Number(calculatedValues?.vth);
+    const expectedRthKilohms = ohmsToKilohms(calculatedValues?.rth);
+    const expectedLoadResistanceKilohms = ohmsToKilohms(calculatedValues?.rl);
+    const nextIncorrectInputs = {
+      vth:
+        !isWithinRange(enteredVth, INPUT_RANGES.vth)
+        || !approximatelyEquals(enteredVth, expectedVth, INPUT_TOLERANCES.vth),
+      rth:
+        !isWithinRange(enteredRthKilohms, INPUT_RANGES.rth)
+        || !approximatelyEquals(
+          enteredRthKilohms,
+          expectedRthKilohms,
+          INPUT_TOLERANCES.rth,
+        ),
+      rl:
+        !isWithinRange(loadResistanceKilohms, INPUT_RANGES.rl)
+        || !approximatelyEquals(
+          loadResistanceKilohms,
+          expectedLoadResistanceKilohms,
+          INPUT_TOLERANCES.rl,
+        ),
+    };
 
     const actual = Number(observedIL);
+    const loadCurrentDifferenceMilliamperes = inputsAreValid && Number.isFinite(actual)
+      ? Math.abs(amperesToMilliamperes(calculatedLoadCurrent - actual))
+      : Number.POSITIVE_INFINITY;
+    const nextCalculatedCurrentIncorrect =
+      loadCurrentDifferenceMilliamperes > LOAD_CURRENT_TOLERANCE_MILLIAMPERES;
+    const hasIncorrectInput = Object.values(nextIncorrectInputs).some(Boolean);
     const isCorrect =
-      Number.isFinite(actual) &&
-      Math.abs(calculatedLoadCurrent - actual) < 0.001;
+      !hasIncorrectInput &&
+      !nextCalculatedCurrentIncorrect;
+
+    setIncorrectInputs(nextIncorrectInputs);
+    setCalculatedCurrentIncorrect(nextCalculatedCurrentIncorrect);
 
     if (isCorrect) {
       onGuideEvent?.({
@@ -219,11 +298,16 @@ const calculatedLoadCurrentDisplay =
                   <ElectricalText text="Vth" />
                   <input
                     aria-label="Enter Thevenin equivalent voltage"
-                    className="formula-input"
+                    aria-invalid={incorrectInputs.vth}
+                    className={`formula-input${incorrectInputs.vth ? ' formula-input--error' : ''}`}
                     disabled={!calculationDone}
+                    max={INPUT_RANGES.vth.max}
+                    min={INPUT_RANGES.vth.min}
                     onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
-                    placeholder="Enter Value"
+                    onKeyDown={preventInvalidNumberKey}
+                    placeholder="0 - 100"
                     step="0.01"
+                    title="Enter a value from 0 to 100 V"
                     type="number"
                     value={theveninInputs.vth}
                   />
@@ -234,12 +318,16 @@ const calculatedLoadCurrentDisplay =
                     <ElectricalText text="Rth" />
                     <input
                       aria-label="Enter Thevenin equivalent resistance in kilo-ohms"
-                      className="formula-input"
+                      aria-invalid={incorrectInputs.rth}
+                      className={`formula-input${incorrectInputs.rth ? ' formula-input--error' : ''}`}
                       disabled={!calculationDone}
-                      min="0"
+                      max={INPUT_RANGES.rth.max}
+                      min={INPUT_RANGES.rth.min}
                       onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
-                      placeholder="Enter Value"
+                      onKeyDown={preventInvalidNumberKey}
+                      placeholder="0 - 50"
                       step="0.01"
+                      title="Enter a value from 0 to 50 kΩ"
                       type="number"
                       value={theveninInputs.rth}
                     />
@@ -250,12 +338,16 @@ const calculatedLoadCurrentDisplay =
                     <ElectricalText text="RL" />
                     <input
                       aria-label="Enter load resistance in kilo-ohms"
-                      className="formula-input"
+                      aria-invalid={incorrectInputs.rl}
+                      className={`formula-input${incorrectInputs.rl ? ' formula-input--error' : ''}`}
                       disabled={!calculationDone}
-                      min="0"
+                      max={INPUT_RANGES.rl.max}
+                      min={INPUT_RANGES.rl.min}
                       onChange={(event) => handleTheveninInputChange('rl', event.target.value)}
-                      placeholder="Enter Value"
+                      onKeyDown={preventInvalidNumberKey}
+                      placeholder="0 - 5"
                       step="0.01"
+                      title="Enter a value from 0 to 5 kΩ"
                       type="number"
                       value={theveninInputs.rl}
                     />
@@ -268,8 +360,9 @@ const calculatedLoadCurrentDisplay =
                 <span className="equation-equals" aria-hidden="true">=</span>
                 <input
                   aria-label="Calculated load current"
+                  aria-invalid={calculatedCurrentIncorrect}
                   aria-readonly="true"
-                  className="formula-input formula-result-input"
+                  className={`formula-input formula-result-input${calculatedCurrentIncorrect ? ' formula-input--error' : ''}`}
                   disabled={!calculationDone}
                   placeholder="Answer"
                   readOnly

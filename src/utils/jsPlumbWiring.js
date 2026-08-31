@@ -285,6 +285,18 @@ export const lockJsPlumbCircuit = (instance, containerElement) => {
   containerElement?.classList.add('connection-lab--locked')
 }
 
+export const unlockJsPlumbCircuit = (instance, containerElement) => {
+  getAllConnections(instance).forEach((connection) => {
+    connection.setDetachable?.(true)
+
+    connection.endpoints?.forEach((endpoint) => {
+      endpoint.setEnabled?.(true)
+    })
+  })
+
+  containerElement?.classList.remove('connection-lab--locked')
+}
+
 export const validateTheveninConnections = (
   instance,
   experimentCase,

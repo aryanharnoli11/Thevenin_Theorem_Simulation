@@ -199,6 +199,16 @@
       "id": 39,
       "text": "Please remove all current wire connections before proceeding to the next case.",
       "audio": "/audios/After 1st and 2nd cases are completed, click autoconnect.wav"
+    },
+    {
+      "id": 40,
+      "text": "Please enter the required value, then click the “Verify” button to verify the theorem.",
+      "audio": "/audios/Verify button click, one value is missing.wav"
+    },
+    {
+      "id": 41,
+      "text": "Please enter all the values, then click the “Verify” button to verify the theorem.",
+      "audio": "/audios/Verify button click, more than one value is missing.wav"
     }
   ]
 }

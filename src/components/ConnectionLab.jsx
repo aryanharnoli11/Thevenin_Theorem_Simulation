@@ -8,6 +8,7 @@ import {
   deleteConnectionsForTerminal,
   lockJsPlumbCircuit,
   resolveJsPlumb,
+  unlockJsPlumbCircuit,
   validateTheveninConnections,
   wireHoverPaintStyles,
   wirePaintStyles,
@@ -51,6 +52,7 @@ const ConnectionLab = ({
   onCheckConnections,
   onGuideEvent,
   onTogglePower,
+  onVoltageSet,
   observationIl,
   observationVth,
   powerOn,
@@ -213,11 +215,22 @@ const ConnectionLab = ({
   }, [scale])
 
   useEffect(() => {
-    if (experimentCase !== 3 || !instanceRef.current) {
+    const instance = instanceRef.current
+
+    if (!instance) {
       return
     }
 
-    instanceRef.current
+    // ADD advances the case, so the verified circuit can now be changed for
+    // the next measurement.
+    unlockJsPlumbCircuit(instance, containerRef.current)
+    setIsLocked(false)
+
+    if (experimentCase !== 3) {
+      return
+    }
+
+    instance
       .getAllConnections()
       .filter(isRetainedPowerConnection)
       .forEach((connection) => {
@@ -236,7 +249,7 @@ const ConnectionLab = ({
       currentExperimentCase,
     )
 
-    if (currentExperimentCase === 3 && result.isCorrect) {
+    if (result.isCorrect) {
       lockJsPlumbCircuit(instanceRef.current, containerRef.current)
       setIsLocked(true)
     }
@@ -255,6 +268,16 @@ const ConnectionLab = ({
     event.stopPropagation()
 
     if (isLocked) {
+      return
+    }
+
+    if (powerOn) {
+      onGuideEventRef.current?.({
+        description: 'Switch OFF the power supply before removing circuit connections.',
+        target: '#power-toggle-button',
+        title: 'Switch OFF the Power Supply',
+        type: 'POWER_REJECTED',
+      })
       return
     }
 
@@ -426,6 +449,7 @@ const ConnectionLab = ({
             connectedTerminalIds={connectedTerminalIds}
             highlightedTerminalIds={highlightedTerminalIds}
             onTogglePower={onTogglePower}
+            onVoltageSet={onVoltageSet}
             powerOn={powerOn}
             setVoltage={setVoltage}
             voltage={voltage}

@@ -286,7 +286,7 @@ const ActionButtons = ({
     <strong>STEP 6:</strong> Click RESET to restart the experiment.
   </li>
   <li>
-  <strong>Note:</strong> Any connection can be removed by clicking its corresponding terminal number label.
+  <strong>Note:</strong> Connections are locked after a successful CHECK and cannot be removed until the current case reading is added to the observation table.
 </li>
 
 </ol>

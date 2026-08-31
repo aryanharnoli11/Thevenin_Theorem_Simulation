@@ -117,7 +117,7 @@
     "en": "Resistance Sliders"
   },
   "description": {
-    "en": "Set the values of R1, R2, R3 and RL by moving the resistance sliders. These resistance values will remain constant throughout the experiment to ensure accurate verification of the Thevenin Theorem.\n\n**Range:** R1 to R2: 1kΩ to 5kΩ.\nRL: 0.5kΩ to 1.5kΩ"
+    "en": "Set the values of R1, R2, R3 and RL by moving the resistance sliders. These resistance values will remain constant throughout the experiment to ensure accurate verification of the Thevenin Theorem.\n\n**Range:** R1 to R3: 1kΩ to 5kΩ.\nRL: 0.5kΩ to 1.5kΩ"
   },
    "audio": "/walkthrough-audios/Resistance Sliders.wav",
   "placement": "right"
@@ -140,7 +140,7 @@
     "en": "DC Ammeter"
   },
   "description": {
-    "en": "This ammeter is used to measure the load current (IL​) flowing through the load resistance (RL​). The measured load current is used to verify Thevenin's Theorem by comparing it with the theoretically calculated current.\n\n**Rating:** 0 - 5 V "
+    "en": "This ammeter is used to measure the load current (IL​) flowing through the load resistance (RL​). The measured load current is used to verify Thevenin's Theorem by comparing it with the theoretically calculated current.\n\n**Rating:** 0 - 5 mA"
   },
    "audio": "/walkthrough-audios/DC Ammeter.wav",
   "placement": "bottom"
@@ -207,7 +207,7 @@
     "en": "Calculation Panel"
   },
   "description": {
-    "en": "This is the Calculation Panel where the Thevenin Theorem will be verified. Enter the Thevenin equivalent resistance and voltage to calculate the load current automatically, then compare it with the measured load current."
+    "en": "This is the theoretical verification panel where the Thevenin Theorem will be verified. Enter the required values and compare the calculated load current with the measured load current to verify the theorem."
   },
    "audio": "/walkthrough-audios/Calculation Panel.wav",
   "placement": "top"

@@ -878,7 +878,6 @@ export const useAiGuideController = ({
 
       case 'ADD_REJECTED':
       case 'REPORT_BLOCKED':
-      case 'CALCULATION_INPUT_REQUIRED':
       case 'CALCULATION_INPUT_INVALID': {
         showGuideAlert({
           description: event.description,
@@ -887,6 +886,24 @@ export const useAiGuideController = ({
           type: event.alertType ?? 'warning',
         })
         return false
+      }
+
+      case 'CALCULATION_INPUT_REQUIRED': {
+        const instructionId = Number(event.missingCount) === 1 ? '40' : '41'
+
+        showGuideAlert({
+          description: event.description,
+          target: event.target,
+          title: event.title,
+          type: event.alertType ?? 'warning',
+        }, instructionId)
+
+        return runInstructionSequence([{
+          force: true,
+          instructionId,
+          playbackId: `calculation-input-required:${instructionId}:${Date.now()}`,
+          priority: AUDIO_PRIORITY.ERROR,
+        }])
       }
 
       case 'CALCULATE': {
@@ -910,20 +927,36 @@ export const useAiGuideController = ({
 
       case 'VERIFICATION_RESULT': {
         if (event.isCorrect) {
-          if (stateRef.current.theoremVerified) {
-            return true
-          }
-
           updateState((current) => ({
             ...current,
             theoremVerified: true,
           }))
 
+          showGuideAlert({
+            description: instructionsById.get('34')?.text,
+            target: '#generate-report-button',
+            title: 'Verification Successful',
+            type: 'success',
+          }, '34')
+
           return runInstructionSequence([{
+            force: true,
             instructionId: '34',
+            playbackId: `correct-calculation:${Date.now()}`,
             priority: AUDIO_PRIORITY.SUCCESS,
           }])
         }
+
+        updateState((current) => ({
+          ...current,
+          theoremVerified: false,
+        }))
+        showGuideAlert({
+          description: instructionsById.get('33')?.text,
+          target: '#calculation-panel',
+          title: 'Verification Failed',
+          type: 'error',
+        }, '33')
 
         return runInstructionSequence([{
           force: true,
