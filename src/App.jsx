@@ -28,15 +28,19 @@ const getObservationSignature = ({ vth, rth, il }) => (
   ].join('|')
 )
 
-const getScale = () => {
+const getAvailableWidth = () => {
   if (typeof window === 'undefined') {
-    return 1
+    return BASE_WIDTH
   }
 
-  const availableWidth = window.innerWidth - (PANEL_VIEWPORT_GUTTER * 2)
-
-  return Math.max(availableWidth / BASE_WIDTH, 0.1)
+  return (
+    document.body?.clientWidth
+    || document.documentElement.clientWidth
+    || window.innerWidth
+  ) - (PANEL_VIEWPORT_GUTTER * 2)
 }
+
+const getScale = () => Math.max(getAvailableWidth() / BASE_WIDTH, 0.1)
 
 const App = () => {
   const {
@@ -50,6 +54,10 @@ const App = () => {
   const [contentHeight, setContentHeight] = useState(DEFAULT_CONTENT_HEIGHT)
   const postSimulationContentRef = useRef(null)
   const walkthroughCompletionRef = useRef(0)
+  const viewportMetricsRef = useRef({
+    devicePixelRatio: typeof window === 'undefined' ? 1 : window.devicePixelRatio,
+    outerWidth: typeof window === 'undefined' ? BASE_WIDTH : window.outerWidth,
+  })
   const [r1, setR1] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
   const [r2, setR2] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
   const [r3, setR3] = useState(RESISTANCE_SLIDER_CONFIG.network.initial)
@@ -121,12 +129,41 @@ const App = () => {
   }
 
   useEffect(() => {
-    const handleResize = () => setScale(getScale())
+    let resizeTimer = 0
 
-    handleResize()
+    const handleResize = () => {
+      window.clearTimeout(resizeTimer)
+      resizeTimer = window.setTimeout(() => {
+        const previousMetrics = viewportMetricsRef.current
+        const nextMetrics = {
+          devicePixelRatio: window.devicePixelRatio,
+          outerWidth: window.outerWidth,
+        }
+        const pixelRatioChanged = (
+          Math.abs(
+            nextMetrics.devicePixelRatio - previousMetrics.devicePixelRatio,
+          ) > 0.001
+        )
+        const outerWidthChanged = (
+          nextMetrics.outerWidth !== previousMetrics.outerWidth
+        )
+
+        viewportMetricsRef.current = nextMetrics
+
+        // Page zoom changes the device pixel ratio without resizing the
+        // browser window. Keep the app scale stable so native zoom is visible.
+        if (!pixelRatioChanged || outerWidthChanged) {
+          setScale(getScale())
+        }
+      }, 100)
+    }
+
     window.addEventListener('resize', handleResize)
 
-    return () => window.removeEventListener('resize', handleResize)
+    return () => {
+      window.clearTimeout(resizeTimer)
+      window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   useEffect(() => {

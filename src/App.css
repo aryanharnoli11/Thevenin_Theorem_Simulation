@@ -1,9 +1,8 @@
 #app-wrapper {
   width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: auto;
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
   align-items: flex-start;
   padding-bottom: 0;
   background: #2b170d;
