@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import ElectricalText from './ElectricalText.jsx';
 import { amperesToMilliamperes } from '../utils/current.js';
+import { formatCompactNumber } from '../utils/numberFormat.js';
 import {
-  formatKilohms,
   kilohmsToOhms,
   ohmsToKilohms,
 } from '../utils/resistance.js';
@@ -47,6 +47,10 @@ const preventInvalidNumberKey = (event) => {
   if (['-', '+', 'e', 'E'].includes(event.key)) {
     event.preventDefault();
   }
+};
+
+const preventMouseWheelAdjustment = (event) => {
+  event.currentTarget.blur();
 };
 
 const CalculationPanel = ({
@@ -102,7 +106,7 @@ const CalculationPanel = ({
 const calculatedLoadCurrentDisplay =
   calculatedLoadCurrent === null
     ? ''
-    : amperesToMilliamperes(calculatedLoadCurrent).toFixed(3);
+    : formatCompactNumber(amperesToMilliamperes(calculatedLoadCurrent), 3);
 
   useEffect(() => {
     setUserCalculatedIL(calculatedLoadCurrentDisplay);
@@ -121,6 +125,23 @@ const calculatedLoadCurrentDisplay =
     }));
     setCalculatedCurrentIncorrect(false);
     setVerificationResult('');
+  };
+
+  const handleTheveninInputBlur = (parameter) => {
+    setTheveninInputs((current) => {
+      const currentValue = current[parameter];
+
+      if (currentValue.trim() === '') return current;
+
+      const numericValue = Number(currentValue);
+
+      if (!Number.isFinite(numericValue)) return current;
+
+      return {
+        ...current,
+        [parameter]: String(numericValue),
+      };
+    });
   };
 
   const handleVerify = () => {
@@ -215,7 +236,9 @@ const calculatedLoadCurrentDisplay =
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>1</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r1 !== '' ? formatKilohms(r1, 0) : ''}
+                  {calculationDone && r1 !== ''
+                    ? formatCompactNumber(ohmsToKilohms(r1), 0)
+                    : ''}
                 </div>
                 <span className="inline-unit">kΩ</span>
               </div>
@@ -223,7 +246,9 @@ const calculatedLoadCurrentDisplay =
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>2</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r2 !== '' ? formatKilohms(r2, 0) : ''}
+                  {calculationDone && r2 !== ''
+                    ? formatCompactNumber(ohmsToKilohms(r2), 0)
+                    : ''}
                 </div>
                 <span className="inline-unit">kΩ</span>
               </div>
@@ -231,7 +256,9 @@ const calculatedLoadCurrentDisplay =
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>3</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && r3 !== '' ? formatKilohms(r3, 0) : ''}
+                  {calculationDone && r3 !== ''
+                    ? formatCompactNumber(ohmsToKilohms(r3), 0)
+                    : ''}
                 </div>
                 <span className="inline-unit">kΩ</span>
               </div>
@@ -239,7 +266,9 @@ const calculatedLoadCurrentDisplay =
               <div className="inline-input-item">
                 <span className="inline-label">R<sub>L</sub>:</span>
                 <div className="inline-display">
-                  {calculationDone && rl !== '' ? formatKilohms(rl, 1) : ''}
+                  {calculationDone && rl !== ''
+                    ? formatCompactNumber(ohmsToKilohms(rl), 1)
+                    : ''}
                 </div>
                 <span className="inline-unit">kΩ</span>
               </div>
@@ -274,7 +303,7 @@ const calculatedLoadCurrentDisplay =
               className="observed-current-value"
             >
               {calculationDone && observedIL !== ''
-                ? amperesToMilliamperes(observedIL).toFixed(3)
+                ? formatCompactNumber(amperesToMilliamperes(observedIL), 3)
                 : ''}
               {calculationDone && observedIL !== '' ? ' mA' : ''}
             </output>
@@ -303,8 +332,10 @@ const calculatedLoadCurrentDisplay =
                     disabled={!calculationDone}
                     max={INPUT_RANGES.vth.max}
                     min={INPUT_RANGES.vth.min}
+                    onBlur={() => handleTheveninInputBlur('vth')}
                     onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
                     onKeyDown={preventInvalidNumberKey}
+                    onWheel={preventMouseWheelAdjustment}
                     placeholder="0 - 100"
                     step="0.01"
                     title="Enter a value from 0 to 100 V"
@@ -323,8 +354,10 @@ const calculatedLoadCurrentDisplay =
                       disabled={!calculationDone}
                       max={INPUT_RANGES.rth.max}
                       min={INPUT_RANGES.rth.min}
+                      onBlur={() => handleTheveninInputBlur('rth')}
                       onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
                       onKeyDown={preventInvalidNumberKey}
+                      onWheel={preventMouseWheelAdjustment}
                       placeholder="0 - 50"
                       step="0.01"
                       title="Enter a value from 0 to 50 kΩ"
@@ -343,8 +376,10 @@ const calculatedLoadCurrentDisplay =
                       disabled={!calculationDone}
                       max={INPUT_RANGES.rl.max}
                       min={INPUT_RANGES.rl.min}
+                      onBlur={() => handleTheveninInputBlur('rl')}
                       onChange={(event) => handleTheveninInputChange('rl', event.target.value)}
                       onKeyDown={preventInvalidNumberKey}
+                      onWheel={preventMouseWheelAdjustment}
                       placeholder="0 - 5"
                       step="0.01"
                       title="Enter a value from 0 to 5 kΩ"

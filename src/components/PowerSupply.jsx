@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import powerSupplyOff from '../assets/PowerSupply_Off.png'
 import powerSupplyOn from '../assets/PowerSupply_ON.png'
 import {
@@ -15,14 +16,38 @@ const PowerSupply = ({
   voltage,
   voltageLocked,
 }) => {
+ const voltageChangedRef = useRef(false)
  const displayedVoltage = powerOn ? `${voltage} V` : ''
 
 const handleVoltageChange = (event) => {
+  voltageChangedRef.current = true
   setVoltage(Number(event.target.value))
 }
 
 const handleVoltageSet = (event) => {
+  if (!voltageChangedRef.current) {
+    return
+  }
+
+  voltageChangedRef.current = false
   onVoltageSet?.(Number(event.currentTarget.value))
+}
+
+const handleVoltageKeyUp = (event) => {
+  const adjustmentKeys = [
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'End',
+    'Home',
+    'PageDown',
+    'PageUp',
+  ]
+
+  if (adjustmentKeys.includes(event.key)) {
+    handleVoltageSet(event)
+  }
 }
 
   return (
@@ -83,7 +108,7 @@ className={`terminal-number-label terminal-number-label--power-minus terminal-nu
   max="15"
   min="1"
   onChange={handleVoltageChange}
-  onKeyUp={handleVoltageSet}
+  onKeyUp={handleVoltageKeyUp}
   onPointerUp={handleVoltageSet}
   step="1"
   type="range"

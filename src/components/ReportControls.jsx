@@ -5,8 +5,6 @@ import ElectricalText from './ElectricalText.jsx'
 const formulaSections = [
   {
     description: 'Thevenin resistance (RTH​) is the equivalent resistance of a linear electrical network as seen from the load terminals after removing the load resistance and deactivating all independent sources. It represents the internal resistance of the circuit in its Thevenin equivalent.',
-    formula: 'R3 + (R1 × R2) / (R1 + R2)',
-    formulaLead: 'Direct Formula like Rth =',
     heading: 'Steps to Calculate RTH',
     id: 'rth',
     steps: [
@@ -17,8 +15,6 @@ const formulaSections = [
   },
   {
     description: 'Thevenin voltage (VTH) is the open-circuit voltage measured across the load terminals after removing the load resistance (RL​).',
-    formula: 'VS × (R2 / (R1 + R2))',
-    formulaLead: 'Direct Formula like Vth =',
     heading: 'Steps to Calculate VTH',
     id: 'vth',
     steps: [
@@ -30,12 +26,64 @@ const formulaSections = [
   },
   {
     description: 'Load Current (IL​) is the current flowing through the load resistor when it is connected to the Thevenin equivalent circuit.',
-    formula: 'VTH / (RTH + RL)',
-    formulaLead: 'IL =',
     id: 'il',
     steps: [],
   },
 ]
+
+const FormulaFraction = ({ denominator, numerator }) => (
+  <span className="floating-formula-panel__fraction" aria-hidden="true">
+    <span className="floating-formula-panel__numerator">
+      <ElectricalText text={numerator} />
+    </span>
+    <span className="floating-formula-panel__denominator">
+      <ElectricalText text={denominator} />
+    </span>
+  </span>
+)
+
+const FormulaEquation = ({ formulaId }) => {
+  if (formulaId === 'rth') {
+    return (
+      <span
+        aria-label="R T H equals R 3 plus R 1 times R 2 divided by R 1 plus R 2"
+        className="floating-formula-panel__equation-row"
+      >
+        <ElectricalText text="RTH" />
+        <span aria-hidden="true">=</span>
+        <ElectricalText text="R3" />
+        <span aria-hidden="true">+</span>
+        <FormulaFraction numerator="R1 × R2" denominator="R1 + R2" />
+      </span>
+    )
+  }
+
+  if (formulaId === 'vth') {
+    return (
+      <span
+        aria-label="V T H equals V S times R 2 divided by R 1 plus R 2"
+        className="floating-formula-panel__equation-row"
+      >
+        <ElectricalText text="VTH" />
+        <span aria-hidden="true">=</span>
+        <ElectricalText text="VS" />
+        <span aria-hidden="true">×</span>
+        <FormulaFraction numerator="R2" denominator="R1 + R2" />
+      </span>
+    )
+  }
+
+  return (
+    <span
+      aria-label="I L equals V T H divided by R T H plus R L"
+      className="floating-formula-panel__equation-row"
+    >
+      <ElectricalText text="IL" />
+      <span aria-hidden="true">=</span>
+      <FormulaFraction numerator="VTH" denominator="RTH + RL" />
+    </span>
+  )
+}
 const ReportControls = ({
   minReadings,
   onGenerateReport,
@@ -91,10 +139,12 @@ const ReportControls = ({
                 </ol>
               ) : null}
 
-              <p className="floating-formula-panel__formula">
-                <strong><ElectricalText text={section.formulaLead} /></strong>{' '}
-                <span><ElectricalText text={section.formula} /></span>
-              </p>
+              <div className="floating-formula-panel__formula">
+                <strong className="floating-formula-panel__formula-label">
+                  Direct Formula
+                </strong>
+                <FormulaEquation formulaId={section.id} />
+              </div>
             </section>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import SectionCard from './SectionCard.jsx'
 import { amperesToMilliamperes } from '../utils/current.js'
-import { formatKilohms } from '../utils/resistance.js'
+import { formatCompactNumber } from '../utils/numberFormat.js'
+import { ohmsToKilohms } from '../utils/resistance.js'
 
 const OBSERVATION_ROW_COUNT = 1
 const emptyRows = Array.from({ length: OBSERVATION_ROW_COUNT })
@@ -25,13 +26,13 @@ const ObservationTable = ({ observations }) => (
             return (
               <tr key={index}>
                 <td>{row?.id ?? ''}</td>
-               <td>{typeof row?.vth === 'number' ? row.vth.toFixed(2) : ''}</td>
+               <td>{typeof row?.vth === 'number' ? formatCompactNumber(row.vth, 2) : ''}</td>
 
-<td>{typeof row?.rth === 'number' ? formatKilohms(row.rth, 2) : ''}</td>
+<td>{typeof row?.rth === 'number' ? formatCompactNumber(ohmsToKilohms(row.rth), 2) : ''}</td>
 
-<td>{typeof row?.rl === 'number' ? formatKilohms(row.rl, 1) : ''}</td>
+<td>{typeof row?.rl === 'number' ? formatCompactNumber(ohmsToKilohms(row.rl), 1) : ''}</td>
 
-<td>{typeof row?.il === 'number' ? amperesToMilliamperes(row.il).toFixed(3) : ''}</td>
+<td>{typeof row?.il === 'number' ? formatCompactNumber(amperesToMilliamperes(row.il), 3) : ''}</td>
               </tr>
             )
           })}

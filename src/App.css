@@ -2063,9 +2063,9 @@ background:
 }
 
 .floating-formula-panel__formula {
-  display: flex;
-  align-items: center;
-  gap: 6.4px;
+  display: grid;
+  justify-items: start;
+  gap: 5.6px;
   margin: 9.6px 0 0;
   padding: 8px 9.6px;
   border-left: 3.2px solid #1675a9;
@@ -2076,10 +2076,43 @@ background:
   line-height: 1.35;
 }
 
-.floating-formula-panel__formula span {
+.floating-formula-panel__formula-label {
+  font-size: 10.4px;
+  font-weight: 900;
+}
+
+.floating-formula-panel__equation-row {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 4.8px;
   font-family: Cambria, "Times New Roman", serif;
-  font-size: 13.6px;
+  font-size: 15.2px;
   font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.floating-formula-panel__equation-row sub {
+  font-size: 0.65em;
+}
+
+.floating-formula-panel__fraction {
+  display: inline-grid;
+  min-width: max-content;
+  grid-template-rows: auto auto;
+  text-align: center;
+}
+
+.floating-formula-panel__numerator {
+  padding: 0 4.8px 3.2px;
+  border-bottom: 1.4px solid currentColor;
+}
+
+.floating-formula-panel__denominator {
+  padding: 3.2px 4.8px 0;
 }
 
 /* Calculations and footer share one continuous lower-page stack. */
@@ -2404,6 +2437,7 @@ background:
 }
 
 #calculation-panel .formula-input {
+  appearance: textfield;
   box-sizing: border-box;
   width: 100.8px;
   min-width: 100.8px;
@@ -2470,8 +2504,8 @@ background:
   background: #f7f1e8;
 }
 
-#calculation-panel .formula-result-input::-webkit-inner-spin-button,
-#calculation-panel .formula-result-input::-webkit-outer-spin-button {
+#calculation-panel .formula-input::-webkit-inner-spin-button,
+#calculation-panel .formula-input::-webkit-outer-spin-button {
   margin: 0;
   appearance: none;
 }

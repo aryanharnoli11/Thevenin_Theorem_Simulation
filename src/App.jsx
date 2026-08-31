@@ -271,6 +271,10 @@ const App = () => {
   ])
 
   const handleAutoConnect = () => {
+    if (experimentCase >= 4) {
+      return
+    }
+
     if (!resistancesConfigured) {
       void notifyGuide({ type: 'RESISTANCE_REQUIRED' })
       return
@@ -538,6 +542,10 @@ const App = () => {
   }, [experimentCase, notifyGuide])
 
   const handleCheck = () => {
+    if (experimentCase >= 4) {
+      return
+    }
+
     if (!resistancesConfigured) {
       void notifyGuide({ type: 'RESISTANCE_REQUIRED' })
       return
