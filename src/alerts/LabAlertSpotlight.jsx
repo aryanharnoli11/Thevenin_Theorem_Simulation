@@ -85,10 +85,10 @@ const LabAlertSpotlight = ({ target, type }) => {
       aria-hidden="true"
       className={`lab-alert-spotlight lab-alert-spotlight--${type}`}
       style={{
-        height: `${rect.height + 18}px`,
-        left: `${rect.left - 9}px`,
-        top: `${rect.top - 9}px`,
-        width: `${rect.width + 18}px`,
+        height: `${rect.height + 14.4}px`,
+        left: `${rect.left - 7.2}px`,
+        top: `${rect.top - 7.2}px`,
+        width: `${rect.width + 14.4}px`,
       }}
     />
   )

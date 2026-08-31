@@ -21,12 +21,12 @@ const ControlPanel = ({
 }) => (
   <>
     <SectionCard
-      className="h-[260px]"
+      className="h-[208px]"
       icon="sliders"
       id="resistance-controls"
       title="RESISTANCE SLIDERS"
     >
-      <div className="flex flex-col gap-[18px] px-[26px] pt-[26px]">
+      <div className="flex flex-col gap-[14.4px] px-[20.8px] pt-[20.8px]">
 
         <ResistanceSlider
           disabled={locked}

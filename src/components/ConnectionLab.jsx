@@ -112,9 +112,9 @@ const ConnectionLab = ({
 
       const instance = jsPlumb.getInstance({
         ConnectionsDetachable: true,
-        Connector: ['Bezier', { curviness: 72 }],
+        Connector: ['Bezier', { curviness: 57.6 }],
         Container: containerRef.current,
-        Endpoint: ['Dot', { radius: 5 }],
+        Endpoint: ['Dot', { radius: 4 }],
         HoverPaintStyle: {
           ...wireHoverPaintStyles.positive,
         },

@@ -69,13 +69,13 @@ className={`terminal-number-label terminal-number-label--circuit terminal-number
         </Fragment>
       ))}
 
-     <span className="resistor-value left-[89px] top-[170px]">{formatKilohms(r1, 0)} k&Omega;</span>
+     <span className="resistor-value left-[71.2px] top-[136px]">{formatKilohms(r1, 0)} k&Omega;</span>
 
-<span className="resistor-value left-[282px] top-[220px]">{formatKilohms(r2, 0)} k&Omega;</span>
+<span className="resistor-value left-[225.6px] top-[176px]">{formatKilohms(r2, 0)} k&Omega;</span>
 
-<span className="resistor-value left-[300px] top-[164px]">{formatKilohms(r3, 0)} k&Omega;</span>
+<span className="resistor-value left-[240px] top-[131.2px]">{formatKilohms(r3, 0)} k&Omega;</span>
 
-<span className="resistor-value left-[390px] top-[220px]">
+<span className="resistor-value left-[312px] top-[176px]">
   {formatKilohms(rl, 1)} k&Omega;
 </span>
     </div>

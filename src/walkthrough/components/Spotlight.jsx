@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 
-const SPOTLIGHT_PADDING = 12
+const SPOTLIGHT_PADDING = 9.6
 const round = (value) => Math.round(value)
 
 const getSpotlightBox = (rect) => {
@@ -9,10 +9,10 @@ const getSpotlightBox = (rect) => {
   }
 
   return {
-    height: round(Math.max(rect.height + SPOTLIGHT_PADDING * 2, 28)),
+    height: round(Math.max(rect.height + SPOTLIGHT_PADDING * 2, 22.4)),
     left: round(rect.left - SPOTLIGHT_PADDING),
     top: round(rect.top - SPOTLIGHT_PADDING),
-    width: round(Math.max(rect.width + SPOTLIGHT_PADDING * 2, 28)),
+    width: round(Math.max(rect.width + SPOTLIGHT_PADDING * 2, 22.4)),
   }
 }
 

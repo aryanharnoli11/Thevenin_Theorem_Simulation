@@ -6,11 +6,11 @@ import {
   addExclusiveAudioListener,
   dispatchExclusiveAudioStart,
 } from '../../utils/audioCoordinator.js'
-const EDGE_GAP = 16
-const TARGET_GAP = 18
+const EDGE_GAP = 12.8
+const TARGET_GAP = 14.4
 const DEFAULT_POPUP_SIZE = {
-  height: 280,
-  width: 360,
+  height: 224,
+  width: 288,
 }
 const WALKTHROUGH_AUDIO_SOURCE_ID = 'walkthrough'
 const isValidAudioSource = (audio) => Boolean(audio && audio !== '#')

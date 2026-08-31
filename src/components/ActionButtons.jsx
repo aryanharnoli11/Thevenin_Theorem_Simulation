@@ -158,7 +158,7 @@ const ActionButtons = ({
 
   return (
     <SectionCard
-      className={`action-buttons-card h-[200px] ${
+      className={`action-buttons-card h-[160px] ${
         instructionsOpen ? 'action-buttons-card--instructions-open' : ''
       }`}
       icon="buttons"

@@ -67,16 +67,16 @@ const terminalPaintStyles = {
   positive: {
     fill: '#e33024',
     outlineStroke: '#fff8f6',
-    outlineWidth: 2,
+    outlineWidth: 1.6,
     stroke: '#8f140e',
-    strokeWidth: 1.4,
+    strokeWidth: 1.12,
   },
   negative: {
     fill: '#151515',
     outlineStroke: '#f5f5f5',
-    outlineWidth: 2,
+    outlineWidth: 1.6,
     stroke: '#000000',
-    strokeWidth: 1.4,
+    strokeWidth: 1.12,
   },
 }
 
@@ -84,16 +84,16 @@ const terminalHoverPaintStyles = {
   positive: {
     fill: '#ff4a3d',
     outlineStroke: '#ffffff',
-    outlineWidth: 2.4,
+    outlineWidth: 1.92,
     stroke: '#81130f',
-    strokeWidth: 1.6,
+    strokeWidth: 1.28,
   },
   negative: {
     fill: '#303030',
     outlineStroke: '#ffffff',
-    outlineWidth: 2.4,
+    outlineWidth: 1.92,
     stroke: '#000000',
-    strokeWidth: 1.6,
+    strokeWidth: 1.28,
   },
 }
 
@@ -140,7 +140,7 @@ const getEndpointPaintStyle = (element, type, state = 'default') => {
 }
 
 const getEndpointRadius = (element) => (
-  getCssNumber(window.getComputedStyle(element), '--jtk-endpoint-radius', 5)
+  getCssNumber(window.getComputedStyle(element), '--jtk-endpoint-radius', 4)
 )
 
 const getEndpointCssClass = (terminalId, type) => {
@@ -157,30 +157,30 @@ const getEndpointCssClass = (terminalId, type) => {
 export const wirePaintStyles = {
   positive: {
     outlineStroke: '#771914',
-    outlineWidth: 1.15,
+    outlineWidth: 0.92,
     stroke: '#dd342d',
-    strokeWidth: 4.6,
+    strokeWidth: 3.68,
   },
   negative: {
     outlineStroke: '#000000',
-    outlineWidth: 1.15,
+    outlineWidth: 0.92,
     stroke: '#111111',
-    strokeWidth: 4.6,
+    strokeWidth: 3.68,
   },
 }
 
 export const wireHoverPaintStyles = {
   positive: {
     outlineStroke: '#5d110d',
-    outlineWidth: 1.35,
+    outlineWidth: 1.08,
     stroke: '#f04a42',
-    strokeWidth: 5,
+    strokeWidth: 4,
   },
   negative: {
     outlineStroke: '#000000',
-    outlineWidth: 1.35,
+    outlineWidth: 1.08,
     stroke: '#292929',
-    strokeWidth: 5,
+    strokeWidth: 4,
   },
 }
 

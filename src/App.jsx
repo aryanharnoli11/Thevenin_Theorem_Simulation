@@ -14,8 +14,8 @@ import { calculateReadings } from './utils/circuitMath.js'
 import { generateTheveninReport } from './utils/theveninReportGenerator.js'
 import { RESISTANCE_SLIDER_CONFIG } from './utils/resistance.js'
 
-const BASE_WIDTH = 1440
-const DEFAULT_CONTENT_HEIGHT = 1800
+const BASE_WIDTH = 1152
+const DEFAULT_CONTENT_HEIGHT = 1440
 const PANEL_VIEWPORT_GUTTER = 0
 const MIN_OBSERVATION_READINGS = 1
 const MAX_OBSERVATIONS = 10
@@ -40,7 +40,10 @@ const getAvailableWidth = () => {
   ) - (PANEL_VIEWPORT_GUTTER * 2)
 }
 
-const getScale = () => Math.max(getAvailableWidth() / BASE_WIDTH, 0.1)
+const getScale = () => Math.min(
+  Math.max(getAvailableWidth() / BASE_WIDTH, 0.1),
+  1,
+)
 
 const App = () => {
   const {
