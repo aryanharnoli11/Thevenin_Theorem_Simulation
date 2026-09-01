@@ -1,6 +1,22 @@
 import { amperesToMilliamperes } from './current.js'
 import { formatKilohms } from './resistance.js'
 
+// Edit these values to change the fixed text shown in the generated report.
+const REPORT_CONTENT = {
+  documentTitle: 'Thevenin Simulation Report',
+  reportHeading: 'Virtual Labs Simulation Report',
+  labName: 'AI-Enhanced Basic Electrical Science Lab',
+  experimentTitle: "TO VERIFY THEVENIN'S THEOREM",
+  aim: "To study and verify Thevenin's Theorem by replacing a linear electrical network with its equivalent voltage source and equivalent resistance and validating the load current obtained through the Thevenin equivalent circuit.",
+  simulationSummary: "The guided walkthrough familiarised the user with the simulation interface. The resistance values were selected, and the Thevenin resistance (Rth) was measured using the digital multimeter. The Thevenin voltage (Vth) was then measured using the voltmeter, followed by measurement of the load current (IL) using the ammeter. All measured readings were recorded in the observation table. Thereafter, the theoretical value of the load current was calculated using Thevenin's Theorem and compared with the measured value to verify the theorem.",
+  apparatus: [
+    ['Power Supply: 15V DC', 'AC/DC Voltmeter: 0 - 50 V', 'AC/DC Ammeter: 0 - 5 mA', 'Digital Multimeter', 'RL: 0.5 kΩ - 1.5 kΩ'],
+    ['R₁: 1 kΩ - 5 kΩ', 'R₂: 1 kΩ - 5 kΩ', 'R₃: 1 kΩ - 5 kΩ', 'Connecting Leads'],
+  ],
+  conclusion: "Thevenin's Theorem has been verified successfully. The measured load current matches the theoretical value for the given resistive DC circuit.",
+  footer: '© 2026 Virtual Labs, IIT Roorkee',
+}
+
 const escapeHtml = (value) => String(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -14,8 +30,6 @@ export const generateTheveninReport = ({
   r2,
   r3,
   rl,
-  vth,
-  rth,
   calculatedIL,
   sessionStart,
 }) => {
@@ -294,6 +308,9 @@ tr:nth-child(even) {
   gap: 12px;
   align-items: start;
 }
+.results-card--observations {
+  grid-column: 1 / -1;
+}
 .results-card {
   background: #ffffff;
   border: none;
@@ -398,8 +415,10 @@ tr:nth-child(even) {
 }
 .calc-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
   border-bottom: 1px solid #eef2f7;
   padding-bottom: 4px;
 }
@@ -412,10 +431,9 @@ tr:nth-child(even) {
   font-weight: 600;
 }
 .calc-row .calc-value {
-  position: relative;
-  right: 610px;
   font-weight: 700;
   color: #16324b;
+  text-align: right;
 }
 .calc-formula {
   background: #f4f7fb;
@@ -483,6 +501,8 @@ tr:nth-child(even) {
 .pdf-exporting {
   padding: 0 !important;
   background: #ffffff !important;
+  font-size: 10.5px !important;
+  line-height: 1.25 !important;
 }
 .pdf-exporting .header-row {
   grid-template-columns: 150px minmax(0, 1fr) 86px !important;
@@ -493,8 +513,8 @@ tr:nth-child(even) {
   padding-bottom: 6px !important;
 }
 .pdf-exporting .section {
-  padding: 10px 12px !important;
-  margin-bottom: 8px !important;
+  padding: 7px 9px !important;
+  margin-bottom: 5px !important;
 }
 .pdf-exporting .section > h2:first-child {
   margin-bottom: 7px !important;
@@ -514,8 +534,30 @@ tr:nth-child(even) {
   padding: 6px 8px !important;
 }
 .pdf-exporting .summary-card {
-  padding: 8px 10px !important;
-  gap: 6px !important;
+  padding: 6px 8px !important;
+  gap: 4px !important;
+}
+.pdf-exporting h1 {
+  font-size: 19px !important;
+}
+.pdf-exporting h2 {
+  font-size: 14px !important;
+}
+.pdf-exporting h3,
+.pdf-exporting .summary-sub-section h3 {
+  font-size: 11px !important;
+}
+.pdf-exporting .summary-sub-section p,
+.pdf-exporting .summary-list,
+.pdf-exporting th,
+.pdf-exporting td,
+.pdf-exporting .calc-block {
+  font-size: 10px !important;
+}
+.pdf-exporting .report-logo,
+.pdf-exporting .report-logo--virtual-labs,
+.pdf-exporting .report-logo--iit {
+  max-height: 54px !important;
 }
 .pdf-exporting .summary-sub-section h3 {
   margin-bottom: 3px !important;
@@ -531,13 +573,18 @@ tr:nth-child(even) {
   padding: 4px 8px !important;
 }
 .pdf-exporting .param-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
   gap: 7px !important;
   margin-top: 6px !important;
 }
 .pdf-exporting .param-card {
   padding: 6px 9px !important;
 }
+.pdf-exporting .param-card .param-value {
+  font-size: 13px !important;
+}
 .pdf-exporting .results-stack {
+  grid-template-columns: minmax(0, 1fr) !important;
   gap: 8px !important;
 }
 .pdf-exporting .results-card {
@@ -555,16 +602,6 @@ tr:nth-child(even) {
 .pdf-exporting .report-footer {
   margin-top: 8px !important;
   padding-top: 7px !important;
-}
-.pdf-exporting .report-page--overview {
-  break-after: auto !important;
-  page-break-after: auto !important;
-}
-.pdf-exporting .report-page--results {
-  break-before: auto !important;
-  page-break-before: auto !important;
-  break-after: auto !important;
-  page-break-after: auto !important;
 }
 @media (max-width: 768px) {
   body {
@@ -591,11 +628,14 @@ tr:nth-child(even) {
   .report-actions {
     justify-content: center;
   }
+  .results-stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 8mm;
   }
   .print-btn,
   .download-btn,
@@ -606,13 +646,15 @@ tr:nth-child(even) {
     margin: 0;
     padding: 0;
     background: #ffffff;
+    font-size: 10.5px;
+    line-height: 1.25;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
   .report-page {
     width: 100%;
     margin: 0;
-    padding: 8px 12px;
+    padding: 0;
     border: none;
     box-shadow: none;
     border-radius: 0;
@@ -622,14 +664,14 @@ tr:nth-child(even) {
   .header-row {
     grid-template-columns: 150px minmax(0, 1fr) 86px;
     gap: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
   }
   .report-title-block {
     padding-bottom: 6px;
   }
   .section {
-    padding: 10px 12px;
-    margin-bottom: 8px;
+    padding: 7px 9px;
+    margin-bottom: 5px;
   }
   .section > h2:first-child {
     margin-bottom: 7px;
@@ -649,8 +691,30 @@ tr:nth-child(even) {
     padding: 6px 8px;
   }
   .summary-card {
-    padding: 8px 10px;
-    gap: 6px;
+    padding: 6px 8px;
+    gap: 4px;
+  }
+  h1 {
+    font-size: 19px;
+  }
+  h2 {
+    font-size: 14px;
+  }
+  h3,
+  .summary-sub-section h3 {
+    font-size: 11px;
+  }
+  .summary-sub-section p,
+  .summary-list,
+  th,
+  td,
+  .calc-block {
+    font-size: 10px;
+  }
+  .report-logo,
+  .report-logo--virtual-labs,
+  .report-logo--iit {
+    max-height: 54px;
   }
   .summary-sub-section h3 {
     margin-bottom: 3px;
@@ -666,11 +730,15 @@ tr:nth-child(even) {
     padding: 4px 8px;
   }
   .param-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 7px;
     margin-top: 6px;
   }
   .param-card {
     padding: 6px 9px;
+  }
+  .param-card .param-value {
+    font-size: 13px;
   }
   .results-stack {
     gap: 8px;
@@ -690,16 +758,6 @@ tr:nth-child(even) {
   .report-footer {
     margin-top: 8px;
     padding-top: 7px;
-  }
-  .report-page--overview {
-    break-after: page;
-    page-break-after: always;
-  }
-  .report-page--results {
-    break-before: page;
-    page-break-before: always;
-    break-after: auto;
-    page-break-after: auto;
   }
   .header-row,
   .results-card,
@@ -722,13 +780,13 @@ tr:nth-child(even) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thevenin Simulation Report</title>
+  <title>${escapeHtml(REPORT_CONTENT.documentTitle)}</title>
   <style>${css}</style>
 </head>
 <body id="report-root">
   <main class="report-document" id="report-document">
 
-    <div class="report-page report-page--overview">
+    <div class="report-page">
 
       <div class="header-row">
         <img
@@ -737,7 +795,7 @@ tr:nth-child(even) {
           alt="Virtual Labs logo"
         >
         <div class="report-title-block">
-          <h1>Virtual Labs Simulation Report</h1>
+          <h1>${escapeHtml(REPORT_CONTENT.reportHeading)}</h1>
         </div>
         <img
           src="${escapeHtml(iitLogoSrc)}"
@@ -748,11 +806,11 @@ tr:nth-child(even) {
 
       <div class="section report-overview">
         <div class="report-overview-top">
-          <p class="badge">AI-Enhanced Basic Electrical Science Lab</p>
+          <p class="badge">${escapeHtml(REPORT_CONTENT.labName)}</p>
           <p class="report-stamp">Generated on ${escapeHtml(reportDateText)}</p>
         </div>
         <p class="report-experiment-label">Experiment Title</p>
-        <p class="report-experiment-title">TO VERIFY THEVENIN'S THEOREM</p>
+        <p class="report-experiment-title">${escapeHtml(REPORT_CONTENT.experimentTitle)}</p>
         <div class="info-grid">
           <div class="info-card">
             <span class="label">Start Time:</span>
@@ -774,40 +832,26 @@ tr:nth-child(even) {
         <div class="summary-card">
           <div class="summary-sub-section">
             <h3>Aim</h3>
-            <p>To study and verify Thevenin's Theorem by replacing a linear electrical network with its equivalent voltage source and equivalent resistance and validating the load current obtained through the Thevenin equivalent circuit.</p>
+            <p>${escapeHtml(REPORT_CONTENT.aim)}</p>
           </div>
 
           <div class="summary-sub-section">
             <h3>Simulation Summary</h3>
-            <p> The guided walkthrough familiarised the user with the simulation interface. The resistance values were selected, and the Thevenin resistance (R<sub>th</sub>) was measured using the digital multimeter. The Thevenin voltage (V<sub>th</sub>) was then measured using the voltmeter, followed by measurement of the load current (I<sub>L</sub>) using the ammeter. All measured readings were recorded in the observation table. Thereafter, the theoretical value of the load current was calculated using Thevenin's Theorem and compared with the measured value to verify the theorem.</p>
+            <p>${escapeHtml(REPORT_CONTENT.simulationSummary)}</p>
           </div>
 
           <div class="summary-sub-section" style="margin-bottom: 0;">
             <h3>Apparatus Used</h3>
             <div class="apparatus-grid">
-              <ul class="summary-list">
-                <li>Power Supply: 30V DC</li>
-                <li>AC/DC Voltmeter: 0 - 50 V</li>
-                <li>AC/DC Ammeter: 0 - 5 mA</li>
-                <li>Digital Multimeter: 30V DC</li>
-                <li>R<sub>L</sub>: 0.5 k&Omega; &ndash; 1.5 k&Omega;</li>
-              </ul>
-              <ul class="summary-list">
-                <li>R<sub>1</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
-                <li>R<sub>2</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
-                <li>R<sub>3</sub>: 1 k&Omega; &ndash; 5 k&Omega;</li>
-                <li>Connecting Leads</li>
-              </ul>
+              ${REPORT_CONTENT.apparatus.map((column) => `
+                <ul class="summary-list">
+                  ${column.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+                </ul>
+              `).join('')}
             </div>
           </div>
         </div>
       </div>
-
-      <footer class="report-footer">&copy; 2026 Virtual Labs, IIT Roorkee</footer>
-
-    </div>
-
-    <div class="report-page report-page--results">
 
       <div class="section">
         <h2>Experiment Parameters</h2>
@@ -828,14 +872,7 @@ tr:nth-child(even) {
             <span class="param-label">R<sub>L</sub></span>
             <span class="param-value">${formatKilohms(rl, 1)} k&Omega;</span>
           </div>
-          <div class="param-card">
-            <span class="param-label">V<sub>TH</sub></span>
-            <span class="param-value">${vth.toFixed(3)} V</span>
-          </div>
-          <div class="param-card">
-            <span class="param-label">R<sub>TH</sub></span>
-            <span class="param-value">${formatKilohms(rth, 3)} k&Omega;</span>
-          </div>
+
         </div>
       </div>
 
@@ -844,7 +881,7 @@ tr:nth-child(even) {
 
         <div class="results-stack">
 
-          <div class="results-card">
+          <div class="results-card results-card--observations">
             <h3>Observation Table</h3>
             <div class="table-shell">
               <table>
@@ -866,23 +903,24 @@ tr:nth-child(even) {
 
           <div class="results-card">
             <h3>Theoretical Verification</h3>
-                         <div class="calc-row">
+            <div class="calc-block">
+              <div class="calc-row">
                 <span class="calc-label">Calculated Load Current (I<sub>L</sub>):</span>
-                <span class="calc-value">${calculatedIL.toFixed(4)} A</span>
+                <span class="calc-value">${calculatedIL.toFixed(3)} mA</span>
               </div>
             </div>
           </div>
-
           <div class="results-card">
             <h3>Conclusion</h3>
             <p class="conclusion-text">
-             Thevenin’s Theorem has been verified successfully. The measured load current matches the theoretical value for the given resistive DC circuit.            </p>
+              ${escapeHtml(REPORT_CONTENT.conclusion)}
+            </p>
           </div>
 
         </div>
       </div>
 
-      <footer class="report-footer">&copy; 2026 Virtual Labs, IIT Roorkee</footer>
+      <footer class="report-footer">${escapeHtml(REPORT_CONTENT.footer)}</footer>
 
     </div>
 
@@ -930,15 +968,15 @@ tr:nth-child(even) {
 
     function downloadReport() {
       ensureHtml2Pdf().then(function() {
-        var reportPages = Array.from(document.querySelectorAll('.report-page'));
+        var reportPage = document.querySelector('.report-page');
 
-        if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF || reportPages.length !== 2) {
-          throw new Error('The two-page PDF renderer is unavailable.');
+        if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF || !reportPage) {
+          throw new Error('The one-page PDF renderer is unavailable.');
         }
 
         var pageWidth = 210;
         var pageHeight = 297;
-        var pageMargin = 12;
+        var pageMargin = 8;
         var availableWidth = pageWidth - (pageMargin * 2);
         var availableHeight = pageHeight - (pageMargin * 2);
         var pdf = new window.jspdf.jsPDF({
@@ -949,37 +987,29 @@ tr:nth-child(even) {
 
         document.body.classList.add('pdf-exporting');
 
-        return reportPages.reduce(function(sequence, reportPage, index) {
-          return sequence.then(function() {
-            return window.html2canvas(reportPage, {
-              scale: 2,
-              useCORS: true,
-              backgroundColor: '#ffffff',
-              scrollX: 0,
-              scrollY: 0
-            });
-          }).then(function(canvas) {
-            var widthScale = availableWidth / canvas.width;
-            var heightScale = availableHeight / canvas.height;
-            var renderScale = Math.min(widthScale, heightScale);
-            var renderWidth = canvas.width * renderScale;
-            var renderHeight = canvas.height * renderScale;
-            var renderX = (pageWidth - renderWidth) / 2;
+        return window.html2canvas(reportPage, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          scrollX: 0,
+          scrollY: 0
+        }).then(function(canvas) {
+          var widthScale = availableWidth / canvas.width;
+          var heightScale = availableHeight / canvas.height;
+          var renderScale = Math.min(widthScale, heightScale);
+          var renderWidth = canvas.width * renderScale;
+          var renderHeight = canvas.height * renderScale;
+          var renderX = (pageWidth - renderWidth) / 2;
 
-            if (index > 0) {
-              pdf.addPage('a4', 'portrait');
-            }
-
-            pdf.addImage(
-              canvas.toDataURL('image/jpeg', 0.98),
-              'JPEG',
-              renderX,
-              pageMargin,
-              renderWidth,
-              renderHeight
-            );
-          });
-        }, Promise.resolve()).then(function() {
+          pdf.addImage(
+            canvas.toDataURL('image/jpeg', 0.98),
+            'JPEG',
+            renderX,
+            pageMargin,
+            renderWidth,
+            renderHeight
+          );
+        }).then(function() {
           pdf.save('thevenin-simulation-report.pdf');
         }).finally(function() {
           document.body.classList.remove('pdf-exporting');
