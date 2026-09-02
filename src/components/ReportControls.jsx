@@ -89,6 +89,7 @@ const ReportControls = ({
   onGenerateReport,
   readingCount,
   reportGenerated,
+  reportReady,
 }) => {
   const [formulasOpen, setFormulasOpen] = useState(false)
   const readingsReady = readingCount >= minReadings
@@ -157,7 +158,7 @@ const ReportControls = ({
       id="generate-report-button"
       type="button"
       className="report-button"
-      disabled={!readingsReady}
+      disabled={!readingsReady || !reportReady}
       aria-label="Generate Report"
       data-report-generated={reportGenerated ? 'true' : 'false'}
       onClick={onGenerateReport}

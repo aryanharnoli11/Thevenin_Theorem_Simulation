@@ -83,6 +83,7 @@ const instructionOrder = [
   'step4',
   'step5',
   'step6',
+  'step7',
 ]
 
 const ActionButtons = ({
@@ -221,11 +222,16 @@ const ActionButtons = ({
             ref={instructionsBodyRef}
           >
             <ol className="action-instructions-panel__steps">
+  <li className="action-instructions-panel__intro">
+    <strong>AI Guide:</strong>{' '}
+    <ElectricalText text="The AI guide will assist you in performing the simulation accurately at each step." />
+  </li>
 
   <li {...getInstructionProps('step1')}>
     <strong>STEP 1:</strong>{' '}
-    <ElectricalText text="Set the values of resistances R1, R2, R3 and RL using the sliders." />
+    <ElectricalText text="Set the values of resistances R1, R2, R3 and RL using the resistance sliders." />
   </li>
+
 
   <li>
     <strong>STEP 2:</strong> Perform the following cases.
@@ -234,24 +240,24 @@ const ActionButtons = ({
       <li {...getInstructionProps('case1')}>
   <strong>Case 1 (Measure <ElectricalText text="RTH" />):</strong>
   <ul>
+    <li>Connect the Multimeter (5-11 and 6-13).</li>
     <li>Short circuit terminals (9-10).</li>
-    <li>Connect Multimeter (5-11 and 6-13).</li>
-    <li>Click CHECK.</li>
-    <li>Click ADD to record <ElectricalText text="RTH" />.</li>
-    <li>Remove connections (9-10), (5-11), (6-13) by clicking the corresponding terminal labels.</li>
+    <li>Click the CHECK button to verify the connections.</li>
+    <li>Click the ADD button to record <ElectricalText text="RTH" />.</li>
+    <li>Remove the connections (9-10), (5-11), (6-13) by clicking the corresponding terminal labels.</li>
   </ul>
 </li>
 
       <li {...getInstructionProps('case2')}>
   <strong>Case 2 (Measure <ElectricalText text="VTH" />):</strong>
   <ul>
-    <li>Connect Power Supply (7-9 and 8-10).</li>
-    <li>Connect Voltmeter (1-11 and 2-13).</li>
-    <li>Click CHECK.</li>
-    <li>Turn ON Power Supply.</li>
-    <li>Adjust Voltage.</li>
-    <li>Click ADD to record <ElectricalText text="VTH" />.</li>
-    <li>Remove connections (1-11 and 2-13) by clicking the corresponding terminal labels.</li>
+    <li>Connect the Power Supply (7-9 and 8-10).</li>
+    <li>Connect the Voltmeter (1-11 and 2-13).</li>
+    <li>Click the CHECK button to verify the connections.</li>
+    <li>Turn ON the Power Supply and set the desired voltage.</li>
+    <li>Click the ADD button to record <ElectricalText text="VTH" />.</li>
+    <li>Turn OFF the Power Supply.</li>
+    <li>Remove the connections (1-11 and 2-13) by clicking the corresponding terminal labels.</li>
   </ul>
 </li>
 
@@ -259,10 +265,10 @@ const ActionButtons = ({
         <strong>Case 3 (Measure <ElectricalText text="IL" />):</strong>
         <ul>
 <li>Keep the existing Power Supply connections (7-9 and 8-10) unchanged.</li>
-<li>Connect Ammeter (3-11, 4-12 and 13-14).</li>
-<li>Click CHECK.</li>
-<li>Turn ON the Power Supply at the same voltage setting used in Case 2.</li>
-<li>Click ADD to record <ElectricalText text="IL" />.</li>
+<li>Connect the Ammeter (3-11, 4-12 and 13-14).</li>
+<li>Click the CHECK button to verify the connections.</li>
+<li>Turn ON the Power Supply at the same voltage used in Case 2.</li>
+<li>Click the ADD button to record <ElectricalText text="IL" />.</li>
         </ul>
       </li>
     </ol>
@@ -270,24 +276,25 @@ const ActionButtons = ({
 
   <li {...getInstructionProps('step3')}>
     <strong>STEP 3:</strong>{' '}
-    <ElectricalText text="Click CALCULATE to calculate load current (IL)." />
+    <ElectricalText text="Click the CALCULATE button to autofill the resistance and source values." />
   </li>
 
   <li {...getInstructionProps('step4')}>
     <strong>STEP 4:</strong>{' '}
-    <ElectricalText text="Enter RTH and VTH to calculate IL automatically, then click VERIFY." />
+    <ElectricalText text="Enter VTH, RTH and RL to calculate load current (IL), and then click the VERIFY button to verify the theorem." />
   </li>
 
   <li {...getInstructionProps('step5')}>
-    <strong>STEP 5:</strong> Click PRINT to print the experiment report.
+    <strong>STEP 5:</strong> Click the Generate Report button to generate the simulation report.
   </li>
 
-  <li {...getInstructionProps('step6')}>
-    <strong>STEP 6:</strong> Click RESET to restart the experiment.
+   <li {...getInstructionProps('step6')}>
+    <strong>STEP 6:</strong> Click the PRINT button to print the simulation.
   </li>
-  <li>
-  <strong>Note:</strong> Connections are locked after a successful CHECK and cannot be removed until the current case reading is added to the observation table.
-</li>
+
+  <li {...getInstructionProps('step7')}>
+    <strong>STEP 7:</strong> Click the RESET button to restart the simulation.
+  </li>
 
 </ol>
           </div>

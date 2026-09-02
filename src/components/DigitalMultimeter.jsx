@@ -6,6 +6,10 @@ import {
   getTerminalNumberHighlightClass,
 } from '../utils/terminalHighlight.js'
 import { formatKilohms } from '../utils/resistance.js'
+
+const INITIAL_KNOB_ANGLE = 0
+const TWENTY_KILOHM_RANGE_ANGLE = 90
+
 const DigitalMultimeter = ({
   connectedTerminalIds = [],
   highlightedTerminalIds = [],
@@ -16,20 +20,9 @@ const DigitalMultimeter = ({
   showValue && Number.isFinite(value)
     ? value
     : 0
-let knobAngle = 0
-
-if (resistance > 0) {
-  if (resistance <= 2)
-    knobAngle = 30
-  else if (resistance <= 20)
-    knobAngle = 60
-  else if (resistance <= 200)
-    knobAngle = 90
-  else if (resistance <= 2000)
-    knobAngle = 120
-  else
-    knobAngle = 150
-}
+ const knobAngle = showValue
+   ? TWENTY_KILOHM_RANGE_ANGLE
+   : INITIAL_KNOB_ANGLE
   return (
     <article
       className="ammeter ammeter--multimeter"
@@ -47,7 +40,7 @@ if (resistance > 0) {
 >
  <img
   src={knobImg}
-  alt="Knob"
+  alt={showValue ? 'Selector set to 20 kilohms' : 'Selector at initial position'}
   className="multimeter-knob-image"
   style={{
   transform: `rotate(${knobAngle}deg)`,

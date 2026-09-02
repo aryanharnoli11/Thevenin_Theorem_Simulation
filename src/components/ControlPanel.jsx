@@ -10,6 +10,7 @@ const ControlPanel = ({
   observations,
   readingCount,
   reportGenerated,
+  reportReady,
   rl,
   r1,
   r2,
@@ -66,6 +67,7 @@ const ControlPanel = ({
       onGenerateReport={onGenerateReport}
       readingCount={readingCount}
       reportGenerated={reportGenerated}
+      reportReady={reportReady}
     />
   </>
 )

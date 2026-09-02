@@ -336,7 +336,7 @@ const calculatedLoadCurrentDisplay =
                     onChange={(event) => handleTheveninInputChange('vth', event.target.value)}
                     onKeyDown={preventInvalidNumberKey}
                     onWheel={preventMouseWheelAdjustment}
-                    placeholder="0 - 100"
+                    placeholder="Enter Value"
                     step="0.01"
                     title="Enter a value from 0 to 100 V"
                     type="number"
@@ -358,7 +358,7 @@ const calculatedLoadCurrentDisplay =
                       onChange={(event) => handleTheveninInputChange('rth', event.target.value)}
                       onKeyDown={preventInvalidNumberKey}
                       onWheel={preventMouseWheelAdjustment}
-                      placeholder="0 - 50"
+                      placeholder="Enter Value"
                       step="0.01"
                       title="Enter a value from 0 to 50 kΩ"
                       type="number"
@@ -380,7 +380,7 @@ const calculatedLoadCurrentDisplay =
                       onChange={(event) => handleTheveninInputChange('rl', event.target.value)}
                       onKeyDown={preventInvalidNumberKey}
                       onWheel={preventMouseWheelAdjustment}
-                      placeholder="0 - 5"
+                      placeholder="Enter Value"
                       step="0.01"
                       title="Enter a value from 0 to 5 kΩ"
                       type="number"

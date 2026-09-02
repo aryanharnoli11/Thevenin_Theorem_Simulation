@@ -458,6 +458,16 @@ const App = () => {
       return
     }
 
+    if (!verificationSucceeded) {
+      void notifyGuide({
+        description: 'Verify the Thevenin theorem successfully before generating the report.',
+        target: '#calculation-panel',
+        title: 'Verify the Theorem First',
+        type: 'REPORT_BLOCKED',
+      })
+      return
+    }
+
     if (readingCount < MIN_OBSERVATION_READINGS) {
       void notifyGuide({
         description: 'Please add at least one observation.',
@@ -655,9 +665,11 @@ const App = () => {
               ? 'step3'
               : !verificationSucceeded
                 ? 'step4'
-                : !reportPrinted
+                : !reportGenerated
                   ? 'step5'
-                  : 'step6'
+                  : !reportPrinted
+                    ? 'step6'
+                    : 'step7'
   )
 
   return (
@@ -700,7 +712,7 @@ const App = () => {
                     onAdd: !connectionsVerified,
                     onCalculate: experimentCase !== 4,
                     onCheck: false,
-                    onPrint: false,
+                    onPrint: !reportGenerated,
                   }}
                   onAdd={recordObservation}
                   onAiGuide={handleAiGuide}
@@ -718,6 +730,7 @@ const App = () => {
                   onGenerateReport={handleGenerateReport}
                   readingCount={readingCount}
                   reportGenerated={reportGenerated}
+                  reportReady={verificationSucceeded}
                   r1={r1}
                   r2={r2}
                   r3={r3}
